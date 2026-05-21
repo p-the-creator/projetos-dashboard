@@ -3,21 +3,28 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
+  if (req.method !== 'POST') return res.status(405).end();
+
+  const url   = process.env.STORAGE_KV_REST_API_URL   || process.env.KV_REST_API_URL;
+  const token = process.env.STORAGE_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN;
+
+  if (!url || !token) {
+    return res.status(500).json({ error: 'Variáveis de ambiente não configuradas' });
+  }
 
   try {
-    const body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-    const response = await fetch(`${process.env.KV_REST_API_URL}/set/dashboard_state`, {
+    const value = JSON.stringify(req.body);
+    const r = await fetch(`${url}/pipeline`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ value: body }),
+      body: JSON.stringify([["SET", "dashboard_state", value]])
     });
-    const data = await response.json();
+    await r.json();
     res.status(200).json({ ok: true });
-  } catch (err) {
-    res.status(500).json({ error: 'Erro ao salvar dados' });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
   }
 }
