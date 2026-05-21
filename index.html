@@ -3,108 +3,151 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orion v1.0</title>
+<title>Orion v2.0</title>
 <style>
-html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background:#07090f;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;user-select:none;}
+html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background:#06080e;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;user-select:none;}
 
-/* Stars */
 #bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
 
 /* Topbar */
-#topbar{position:fixed;top:0;left:0;right:0;height:50px;background:rgba(7,9,15,0.95);border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;padding:0 24px;gap:20px;z-index:200;backdrop-filter:blur(8px);}
-.tb-title{font-size:13px;font-weight:600;letter-spacing:.06em;color:rgba(255,255,255,0.9);}
-.tb-stats{display:flex;gap:20px;margin-left:8px;}
-.tb-stat{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.35);}
-.tb-num{font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);}
-.tb-date{margin-left:auto;font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:.04em;}
-.tb-add{margin-left:12px;font-size:11px;background:none;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:5px 12px;cursor:pointer;color:rgba(255,255,255,0.4);}
-.tb-add:hover{border-color:rgba(255,255,255,0.25);color:rgba(255,255,255,0.7);}
+#topbar{position:fixed;top:0;left:0;right:0;height:50px;background:rgba(6,8,14,0.96);border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;padding:0 28px;gap:24px;z-index:200;backdrop-filter:blur(10px);}
+.tb-title{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.85);}
+.tb-ver{font-size:10px;color:rgba(255,255,255,0.2);margin-left:-12px;letter-spacing:.06em;}
+.tb-divider{width:1px;height:16px;background:rgba(255,255,255,0.08);}
+.tb-stats{display:flex;gap:24px;}
+.tb-stat{display:flex;align-items:baseline;gap:5px;font-size:11px;color:rgba(255,255,255,0.3);}
+.tb-num{font-size:14px;font-weight:600;color:rgba(255,255,255,0.75);}
+.tb-add{margin-left:auto;font-size:11px;background:none;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:5px 14px;cursor:pointer;color:rgba(255,255,255,0.35);letter-spacing:.04em;}
+.tb-add:hover{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.65);}
+.tb-date{font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:.04em;}
 
 /* Tree */
 #tree{position:fixed;top:50px;left:0;right:0;bottom:0;z-index:1;}
 #tree-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
 #node-layer{position:absolute;top:0;left:0;width:100%;height:100%;}
 
-/* Nodes */
-.nd{position:absolute;transform:translate(-50%,-50%);cursor:pointer;transition:filter .2s,transform .2s;}
-.nd:hover{filter:brightness(1.35);}
+/* Base node */
+.nd{position:absolute;transform:translate(-50%,-50%);cursor:pointer;}
 
-.nd-root{width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 38% 35%,rgba(255,255,255,0.12),rgba(255,255,255,0.03));border:1.5px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 24px rgba(255,255,255,0.06);}
+/* Root */
+.nd-root{width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 38% 35%,rgba(255,255,255,.1),rgba(255,255,255,.02));border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 20px rgba(255,255,255,.05);}
 
-.nd-proj{width:68px;height:68px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:2px solid;transition:box-shadow .2s,transform .2s;}
-.nd-proj .ne{font-size:18px;}
-.nd-proj .np{font-size:9px;font-weight:700;}
-.nd-proj.active-nd{transform:translate(-50%,-50%) scale(1.1);}
-.nd-lbl{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none;font-size:10px;}
-.nd-proj .nd-lbl{bottom:-19px;color:rgba(255,255,255,0.65);max-width:110px;overflow:hidden;text-overflow:ellipsis;}
+/* Project node */
+.nd-proj{width:74px;height:74px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:2px solid;transition:box-shadow .2s,filter .2s;}
+.nd-proj:hover{filter:brightness(1.25);}
+.nd-proj.sel{transform:translate(-50%,-50%) scale(1.08);}
+.nd-proj .pe{font-size:22px;line-height:1;}
+.nd-proj .pp{font-size:9px;font-weight:700;opacity:.9;}
+.nd-proj .nd-lbl{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;color:rgba(255,255,255,.6);pointer-events:none;max-width:120px;overflow:hidden;text-overflow:ellipsis;}
 
-.nd-task{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid;}
-.nd-task .nt{font-size:10px;font-weight:700;}
+/* Phase node */
+.nd-phase{width:44px;height:44px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px solid;transition:filter .15s;}
+.nd-phase:hover{filter:brightness(1.3);}
+.nd-phase .ph-n{font-size:9px;font-weight:700;opacity:.7;}
+.nd-phase .ph-ico{font-size:11px;line-height:1;}
+.nd-phase .nd-lbl{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;pointer-events:none;max-width:90px;overflow:hidden;text-overflow:ellipsis;text-align:center;}
 
-/* Status */
-.s-andamento{border-color:#1D9E75;background:radial-gradient(circle at 38% 35%,rgba(29,158,117,.28),rgba(29,158,117,.07));color:#1D9E75;box-shadow:0 0 22px rgba(29,158,117,.22);}
-.s-atencao  {border-color:#EF9F27;background:radial-gradient(circle at 38% 35%,rgba(239,159,39,.28),rgba(239,159,39,.07));color:#EF9F27;box-shadow:0 0 22px rgba(239,159,39,.22);}
-.s-plan     {border-color:#378ADD;background:radial-gradient(circle at 38% 35%,rgba(55,138,221,.28),rgba(55,138,221,.07));color:#378ADD;box-shadow:0 0 22px rgba(55,138,221,.22);}
-.s-bloq     {border-color:#E24B4A;background:radial-gradient(circle at 38% 35%,rgba(226,75,74,.28),rgba(226,75,74,.07));color:#E24B4A;box-shadow:0 0 22px rgba(226,75,74,.22);}
-.s-paus     {border-color:#888;background:radial-gradient(circle at 38% 35%,rgba(136,136,136,.2),rgba(136,136,136,.05));color:#888;}
+/* Phase status styles */
+.ph-done{border-color:rgba(34,197,94,.7);background:radial-gradient(circle at 38% 35%,rgba(34,197,94,.22),rgba(34,197,94,.05));box-shadow:0 0 14px rgba(34,197,94,.25);}
+.ph-done .nd-lbl{color:rgba(34,197,94,.7);}
+.ph-active{border-color:rgba(249,115,22,.8);background:radial-gradient(circle at 38% 35%,rgba(249,115,22,.25),rgba(249,115,22,.07));animation:ph-pulse 2.4s ease-in-out infinite;width:50px;height:50px;}
+.ph-active .nd-lbl{color:rgba(249,115,22,.9);}
+@keyframes ph-pulse{0%,100%{box-shadow:0 0 12px rgba(249,115,22,.3);}50%{box-shadow:0 0 28px rgba(249,115,22,.55);}}
+.ph-planned{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.05);opacity:.55;}
+.ph-planned .nd-lbl{color:rgba(59,130,246,.6);}
+.ph-vision{border-color:rgba(139,92,246,.25);background:rgba(139,92,246,.03);opacity:.32;}
+.ph-vision .nd-lbl{color:rgba(139,92,246,.55);}
 
-.t-done{border-color:rgba(255,255,255,.38);background:rgba(255,255,255,.07);box-shadow:0 0 8px rgba(255,255,255,.1);color:rgba(255,255,255,.8);}
-.t-pend{border-color:rgba(255,255,255,.08);background:rgba(255,255,255,.02);color:rgba(255,255,255,.25);opacity:.55;}
+/* Project status colors */
+.s-andamento{border-color:#1D9E75;background:radial-gradient(circle at 38% 35%,rgba(29,158,117,.25),rgba(29,158,117,.06));color:#1D9E75;box-shadow:0 0 24px rgba(29,158,117,.2);}
+.s-atencao  {border-color:#EF9F27;background:radial-gradient(circle at 38% 35%,rgba(239,159,39,.25),rgba(239,159,39,.06));color:#EF9F27;box-shadow:0 0 24px rgba(239,159,39,.2);}
+.s-plan     {border-color:#378ADD;background:radial-gradient(circle at 38% 35%,rgba(55,138,221,.25),rgba(55,138,221,.06));color:#378ADD;box-shadow:0 0 24px rgba(55,138,221,.2);}
+.s-bloq     {border-color:#E24B4A;background:radial-gradient(circle at 38% 35%,rgba(226,75,74,.25),rgba(226,75,74,.06));color:#E24B4A;box-shadow:0 0 24px rgba(226,75,74,.2);}
+.s-paus     {border-color:#888;background:radial-gradient(circle at 38% 35%,rgba(136,136,136,.2),rgba(136,136,136,.04));color:#888;}
 
-/* Panel */
-#panel{position:fixed;top:50px;right:-460px;bottom:0;width:430px;background:rgba(7,9,15,.97);border-left:1px solid rgba(255,255,255,.07);transition:right .35s cubic-bezier(.4,0,.2,1);z-index:150;display:flex;flex-direction:column;backdrop-filter:blur(12px);}
+/* PANEL */
+#panel{position:fixed;top:50px;right:-450px;bottom:0;width:420px;background:rgba(6,8,14,.98);border-left:1px solid rgba(255,255,255,.06);transition:right .35s cubic-bezier(.4,0,.2,1);z-index:150;display:flex;flex-direction:column;backdrop-filter:blur(14px);}
 #panel.open{right:0;}
-#ph{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:10px;flex-shrink:0;}
-#ph-back{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.3);font-size:20px;line-height:1;padding:0;}
-#ph-back:hover{color:rgba(255,255,255,.8);}
-#ph-emoji{font-size:20px;}
-#ph-name{font-size:14px;font-weight:500;flex:1;min-width:0;}
-#ph-badge{font-size:10px;font-weight:500;padding:3px 9px;border-radius:99px;flex-shrink:0;}
-#pb{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:22px;}
-#pb::-webkit-scrollbar{width:3px;}
-#pb::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px;}
 
-/* Panel sections */
-.ps-h{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-.ps-c{margin-left:auto;color:rgba(255,255,255,.2);font-weight:400;}
+#ph{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+#ph-back{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.28);font-size:20px;line-height:1;padding:0;}
+#ph-back:hover{color:rgba(255,255,255,.8);}
+#ph-emoji{font-size:22px;}
+.ph-info{flex:1;min-width:0;}
+#ph-name{font-size:14px;font-weight:600;color:rgba(255,255,255,.9);}
+#ph-desc{font-size:11px;color:rgba(255,255,255,.35);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#ph-badge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:99px;flex-shrink:0;letter-spacing:.04em;}
+
+#pb{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:20px;}
+#pb::-webkit-scrollbar{width:3px;}
+#pb::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border-radius:2px;}
+
+/* Progress overview */
+.p-overview{display:flex;gap:6px;align-items:center;margin-bottom:4px;}
+.p-phase-pip{flex:1;height:4px;border-radius:99px;}
+.p-phase-pip.done{background:#22C55E;}
+.p-phase-pip.active{background:#F97316;}
+.p-phase-pip.planned{background:rgba(59,130,246,.3);}
+.p-phase-pip.vision{background:rgba(139,92,246,.15);}
+.p-prog-txt{font-size:11px;color:rgba(255,255,255,.3);white-space:nowrap;}
+
+/* Phase list in panel */
+.phase-row{border-radius:10px;border:1px solid;padding:12px 14px;cursor:pointer;transition:border-color .15s;}
+.phase-row.done  {border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.04);}
+.phase-row.active{border-color:rgba(249,115,22,.35);background:rgba(249,115,22,.06);}
+.phase-row.planned{border-color:rgba(59,130,246,.12);background:rgba(59,130,246,.02);opacity:.7;}
+.phase-row.vision{border-color:rgba(139,92,246,.1);background:rgba(139,92,246,.02);opacity:.45;}
+.phase-row-top{display:flex;align-items:center;gap:8px;margin-bottom:0;}
+.phase-row.expanded .phase-row-top{margin-bottom:10px;}
+.ph-row-num{font-size:10px;font-weight:700;opacity:.5;min-width:20px;}
+.ph-row-name{font-size:13px;font-weight:600;flex:1;}
+.ph-row-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;letter-spacing:.04em;}
+.done .ph-row-badge  {background:rgba(34,197,94,.15);color:#4ade80;}
+.active .ph-row-badge{background:rgba(249,115,22,.15);color:#fb923c;}
+.planned .ph-row-badge{background:rgba(59,130,246,.12);color:#60a5fa;}
+.vision .ph-row-badge {background:rgba(139,92,246,.12);color:#a78bfa;}
+.ph-row-chevron{font-size:11px;color:rgba(255,255,255,.2);transition:transform .2s;}
+.phase-row.expanded .ph-row-chevron{transform:rotate(90deg);}
+.phase-items-list{display:none;flex-direction:column;gap:4px;}
+.phase-row.expanded .phase-items-list{display:flex;}
+.ph-item{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:rgba(255,255,255,.5);line-height:1.4;}
+.ph-item-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.done .ph-item-dot  {background:rgba(34,197,94,.6);}
+.active .ph-item-dot{background:rgba(249,115,22,.6);}
+.planned .ph-item-dot{background:rgba(59,130,246,.4);}
+.vision .ph-item-dot {background:rgba(139,92,246,.35);}
+
+/* Log */
+.log-item{display:flex;gap:9px;padding-bottom:12px;position:relative;}
+.log-item:not(:last-child)::before{content:'';position:absolute;left:10px;top:17px;bottom:0;width:1px;background:rgba(255,255,255,.04);}
+.log-dw{width:21px;flex-shrink:0;display:flex;justify-content:center;padding-top:3px;}
+.log-d{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);}
+.log-d.fr{background:#378ADD;border-color:#378ADD;box-shadow:0 0 7px rgba(55,138,221,.45);}
+.log-t{font-size:12px;color:rgba(255,255,255,.62);line-height:1.4;}
+.log-ts{font-size:10px;color:rgba(255,255,255,.2);margin-top:2px;}
+.log-auto{font-size:10px;color:rgba(255,255,255,.17);font-style:italic;margin-left:4px;}
+
+/* Section titles */
+.ps-h{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ps-c{margin-left:auto;font-weight:400;color:rgba(255,255,255,.18);}
 
 /* Edit */
 .eg{display:flex;flex-direction:column;gap:7px;}
 .er{display:flex;align-items:center;gap:9px;}
-.el{font-size:11px;color:rgba(255,255,255,.28);min-width:58px;flex-shrink:0;}
-.er input[type=text],.er select{flex:1;font-size:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:6px 9px;color:rgba(255,255,255,.75);outline:none;}
-.er input[type=text]:focus,.er select:focus{border-color:rgba(255,255,255,.2);}
+.el{font-size:11px;color:rgba(255,255,255,.25);min-width:58px;flex-shrink:0;}
+.er input[type=text],.er select{flex:1;font-size:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:6px 9px;color:rgba(255,255,255,.75);outline:none;}
+.er input[type=text]:focus,.er select:focus{border-color:rgba(255,255,255,.18);}
 .er input[type=range]{flex:1;}
-.eo{font-size:11px;color:rgba(255,255,255,.3);min-width:22px;}
-.db{font-size:11px;background:none;border:1px solid rgba(226,75,74,.3);color:rgba(226,75,74,.65);border-radius:6px;padding:5px 10px;cursor:pointer;margin-top:3px;align-self:flex-start;}
-.db:hover{border-color:rgba(226,75,74,.6);color:#E24B4A;}
+.eo{font-size:11px;color:rgba(255,255,255,.28);min-width:22px;}
+.db{font-size:11px;background:none;border:1px solid rgba(226,75,74,.28);color:rgba(226,75,74,.6);border-radius:6px;padding:5px 10px;cursor:pointer;margin-top:3px;align-self:flex-start;}
+.db:hover{color:#E24B4A;border-color:rgba(226,75,74,.55);}
 
-/* Tasks */
-.tr{display:flex;align-items:center;gap:8px;padding:7px 9px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:6px;}
-.tr.dn{background:rgba(255,255,255,.04);}
-.tc{width:14px;height:14px;border-radius:4px;border:1.5px solid rgba(255,255,255,.18);background:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;}
-.tc.ck{background:#1D9E75;border-color:#1D9E75;}
-.tl{flex:1;font-size:12px;color:rgba(255,255,255,.7);min-width:0;}
-.tr.dn .tl{text-decoration:line-through;color:rgba(255,255,255,.28);}
-.tx{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.18);font-size:12px;padding:0;opacity:0;}
-.tr:hover .tx{opacity:1;}
-
-/* Log */
-.li{display:flex;gap:9px;padding-bottom:12px;position:relative;}
-.li:not(:last-child)::before{content:'';position:absolute;left:10px;top:17px;bottom:0;width:1px;background:rgba(255,255,255,.05);}
-.ldw{width:21px;flex-shrink:0;display:flex;justify-content:center;padding-top:3px;}
-.ld{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.18);}
-.ld.fr{background:#378ADD;border-color:#378ADD;box-shadow:0 0 7px rgba(55,138,221,.5);}
-.lt{font-size:12px;color:rgba(255,255,255,.65);line-height:1.4;}
-.lts{font-size:10px;color:rgba(255,255,255,.22);margin-top:2px;}
-.la{font-size:10px;color:rgba(255,255,255,.18);font-style:italic;margin-left:4px;}
-
-/* Input rows */
-.ir{display:flex;gap:6px;margin-top:7px;}
-.ir input{flex:1;font-size:12px;padding:7px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;color:rgba(255,255,255,.75);outline:none;}
-.ir input:focus{border-color:rgba(255,255,255,.2);}
-.ib{font-size:11px;background:none;border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:0 11px;cursor:pointer;color:rgba(255,255,255,.4);white-space:nowrap;height:33px;}
-.ib:hover{border-color:rgba(255,255,255,.22);color:rgba(255,255,255,.75);}
+/* Input */
+.ir{display:flex;gap:6px;margin-top:6px;}
+.ir input{flex:1;font-size:12px;padding:7px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:6px;color:rgba(255,255,255,.75);outline:none;}
+.ir input:focus{border-color:rgba(255,255,255,.18);}
+.ib{font-size:11px;background:none;border:1px solid rgba(255,255,255,.09);border-radius:6px;padding:0 11px;cursor:pointer;color:rgba(255,255,255,.38);white-space:nowrap;height:33px;}
+.ib:hover{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7);}
 
 /* Badges */
 .bg-g{background:rgba(29,158,117,.15);color:#2dd4a0;}
@@ -113,18 +156,33 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background
 .bg-r{background:rgba(226,75,74,.15);color:#f07070;}
 .bg-z{background:rgba(136,136,136,.15);color:#aaa;}
 
+/* Phase item checkboxes */
+.ph-item-row{display:flex;align-items:flex-start;gap:8px;padding:5px 2px;border-radius:5px;}
+.ph-item-row:hover{background:rgba(255,255,255,.03);}
+.ph-item-chk{width:14px;height:14px;border-radius:3px;border:1.5px solid rgba(255,255,255,.18);background:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;margin-top:1px;transition:all .15s;}
+.ph-item-chk.item-ck{background:#1D9E75;border-color:#1D9E75;}
+.ph-item-txt{flex:1;font-size:11px;color:rgba(255,255,255,.55);line-height:1.4;}
+.ph-item-row.item-done .ph-item-txt{text-decoration:line-through;color:rgba(255,255,255,.25);}
+.ph-row-progress{font-size:10px;color:rgba(255,255,255,.2);margin-left:4px;}
+
 /* Tooltip */
-#tt{position:fixed;background:rgba(7,9,15,.96);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:6px 10px;font-size:11px;color:rgba(255,255,255,.65);pointer-events:none;z-index:400;display:none;max-width:220px;line-height:1.4;}
+#tt{position:fixed;background:rgba(6,8,14,.97);border:1px solid rgba(255,255,255,.09);border-radius:7px;padding:8px 12px;font-size:11px;color:rgba(255,255,255,.62);pointer-events:none;z-index:400;display:none;max-width:240px;line-height:1.5;}
+#tt .tt-title{font-weight:600;color:rgba(255,255,255,.85);margin-bottom:4px;font-size:12px;}
+#tt .tt-item{display:flex;align-items:flex-start;gap:5px;margin-top:2px;}
+#tt .tt-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.35);flex-shrink:0;margin-top:4px;}
 </style>
 </head>
 <body>
 <canvas id="bg"></canvas>
+
 <div id="topbar">
-  <span class="tb-title">🌌 Orion v1.0</span>
+  <span class="tb-title">🌌 Orion</span>
+  <span class="tb-ver">v2.0</span>
+  <div class="tb-divider"></div>
   <div class="tb-stats">
-    <div class="tb-stat"><span class="tb-num" id="s-total">0</span> projetos</div>
-    <div class="tb-stat"><span class="tb-num" id="s-avg">0%</span> progresso médio</div>
-    <div class="tb-stat"><span class="tb-num" id="s-done">0</span> tarefas concluídas</div>
+    <div class="tb-stat"><span class="tb-num" id="s-total">0</span>projetos</div>
+    <div class="tb-stat"><span class="tb-num" id="s-phases">0</span>fases concluídas</div>
+    <div class="tb-stat"><span class="tb-num" id="s-active">0</span>em andamento</div>
   </div>
   <button class="tb-add" onclick="addP()">＋ projeto</button>
   <span class="tb-date" id="today-date"></span>
@@ -139,7 +197,10 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background
   <div id="ph">
     <button id="ph-back" onclick="closePanel()">←</button>
     <span id="ph-emoji"></span>
-    <span id="ph-name"></span>
+    <div class="ph-info">
+      <div id="ph-name"></div>
+      <div id="ph-desc"></div>
+    </div>
     <span id="ph-badge"></span>
   </div>
   <div id="pb"></div>
@@ -155,167 +216,185 @@ const SM={
   bloq:     {label:'Bloqueado',    b:'bg-r',sc:'s-bloq'},
   paus:     {label:'Pausado',      b:'bg-z',sc:'s-paus'},
 };
+const PSC={done:'#22C55E',active:'#F97316',planned:'#378ADD',vision:'#8B5CF6'};
+const PSL={done:'Concluída',active:'Em progresso',planned:'Planejada',vision:'Visão'};
 const MN=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 const fmt=d=>d.getDate()+' '+MN[d.getMonth()]+' · '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
 
 let ps=[
-  {id:1,emoji:'🤖',name:'Bot de Compras',status:'atencao',devs:2,start:'mai 2025',
-   tasks:[
-     {id:1,l:'Pipeline de sugestão de pedido',d:true},
-     {id:2,l:'Cache local e snapshot do Tiny',d:true},
-     {id:3,l:'Consultas linguagem natural via Claude',d:true},
-     {id:4,l:'API Tiny v3 + infraestrutura Railway',d:true},
-     {id:5,l:'Migração SQLite → MySQL (blocker)',d:false},
-     {id:6,l:'Descontar OCs abertas no cálculo',d:false},
-     {id:7,l:'Fix sinal da curva AA',d:false},
-     {id:8,l:'Endpoint de necessidade Tiny v3',d:false},
-     {id:9,l:'Relatórios automáticos inteligentes',d:false},
-     {id:10,l:'Alertas WhatsApp Business',d:false},
-   ],
-   log:[
-     {id:1,t:'Projeto iniciado — pipeline de sugestão funcional',ts:new Date('2025-05-17T09:00'),auto:false},
-     {id:2,t:'Fases 1–4 concluídas: cache, NL, Railway, Tiny v3',ts:new Date('2025-05-18T18:00'),auto:false},
-     {id:3,t:'Blocker: SQLite some no redeploy do Railway',ts:new Date('2026-05-18T09:30'),auto:false},
-     {id:4,t:'OCs abertas: até 72% a mais sugerido em alguns SKUs',ts:new Date('2026-05-20T11:00'),auto:false},
-   ]},
-  {id:2,emoji:'🛒',name:'Orbital Vape',status:'andamento',devs:1,start:'mai 2026',
-   tasks:[
-     {id:1,l:'Logo criado e aprovado',d:true},
-     {id:2,l:'Estrutura de categorias mapeada (WBuy)',d:true},
-     {id:3,l:'Gerar chave de API Bearer (WBuy)',d:false},
-     {id:4,l:'Organizar categorias nível 1, 2 e 3',d:false},
-     {id:5,l:'Executar script de categorias (Node.js)',d:false},
-     {id:6,l:'Validar via GET /category',d:false},
-     {id:7,l:'SEO: meta title, description e banners',d:false},
-     {id:8,l:'Cadastro de produtos',d:false},
-     {id:9,l:'Layout, pagamento e frete',d:false},
-     {id:10,l:'Testes e lançamento oficial',d:false},
-   ],
-   log:[
-     {id:1,t:'Identidade visual definida — logo aprovado',ts:new Date('2026-05-01T10:00'),auto:false},
-     {id:2,t:'Esqueleto de categorias montado na WBuy',ts:new Date('2026-05-10T14:00'),auto:false},
-     {id:3,t:'Integração REST API iniciada — aguardando token Bearer',ts:new Date('2026-05-20T09:00'),auto:false},
-   ]},
-  {id:4,emoji:'🧠',name:'Kush-Dev',status:'atencao',devs:1,start:'mai 2026',
-   tasks:[
-     {id:1,l:'/criar completo — geração + sandbox + GitHub',d:true},
-     {id:2,l:'/melhorar + PR automático',d:true},
-     {id:3,l:'Model router leve/pesado (Groq + Claude)',d:true},
-     {id:4,l:'3 módulos reutilizáveis (Tiny, TG Bot, MTProto)',d:true},
-     {id:5,l:'NORTH_STAR documentado',d:true},
-     {id:6,l:'Deploy no Railway',d:true},
-     {id:7,l:'GROQ_API_KEY configurada no Railway',d:false},
-     {id:8,l:'Testar /melhorar no próprio kush-dev',d:false},
-     {id:9,l:'Research Agent (busca repos no GitHub)',d:false},
-     {id:10,l:'Sandbox com validação real (não só exit 0)',d:false},
-     {id:11,l:'Memória entre sessões',d:false},
-     {id:12,l:'CONSTRUCAO.md',d:false},
-     {id:13,l:'Time CrewAI: Arquiteto, Dev, Tester, Corrector, Mentor',d:false},
-     {id:14,l:'PM Agent (roadmap + updates automáticos)',d:false},
-     {id:15,l:'Braço SEO (Pedro)',d:false},
-   ],
-   log:[
-     {id:1,t:'Fase 1 concluída — bot funcional, /criar e /melhorar operacionais',ts:new Date('2026-05-01T09:00'),auto:false},
-     {id:2,t:'Deploy Railway ativo com PostgreSQL e GitHub API integrados',ts:new Date('2026-05-10T14:00'),auto:false},
-     {id:3,t:'Fase 2 iniciada — estabilização em produção e correção de lacunas',ts:new Date('2026-05-20T10:00'),auto:false},
-   ]},
-  {id:3,emoji:'🗺️',name:'Divisão de Sacolas SP',status:'andamento',devs:1,start:'2025',
-   tasks:[
-     {id:1,l:'Geocodificação híbrida com 7 fallbacks',d:true},
-     {id:2,l:'Normalização CEP + validação de cidade',d:true},
-     {id:3,l:'Dicionário de 200+ bairros Grande SP',d:true},
-     {id:4,l:'Distribuição quadrantes + nearest neighbor',d:true},
-     {id:5,l:'Mapa Leaflet + rotas reais OSRM',d:true},
-     {id:6,l:'Import XLSX/CSV + exportação Lalamove',d:true},
-     {id:7,l:'Jitter de marcadores sobrepostos',d:true},
-     {id:8,l:'Resolver sobreposição (fallback CB)',d:false},
-     {id:9,l:'Expandir dicionário de bairros',d:false},
-     {id:10,l:'Cache de geocodificação entre rodadas',d:false},
-     {id:11,l:'Persistência de dados (aba fechada)',d:false},
-     {id:12,l:'Indicador de confiança de endereço',d:false},
-   ],
-   log:[
-     {id:1,t:'v1.0 em produção — 46+ pedidos por rodada',ts:new Date('2025-01-01T10:00'),auto:false},
-     {id:2,t:'Rotas reais OSRM com fallback assíncrono',ts:new Date('2025-03-15T14:00'),auto:false},
-     {id:3,t:'Exportação Lalamove e WhatsApp formatado',ts:new Date('2025-04-01T10:00'),auto:false},
-     {id:4,t:'Roadmap 2025 atualizado — 6 pendências priorizadas',ts:new Date('2025-05-01T09:00'),auto:false},
-   ]},
+  {
+    id:1, emoji:'🤖', name:'Bot de Compras',
+    desc:'Assistente de compras via Telegram integrado ao Tiny ERP',
+    status:'atencao', devs:2, start:'mai 2025',
+    phases:[
+      {id:1,num:'01',name:'Pipeline',status:'done',
+       items:[{t:'Sugestão de pedido por SKU/fornecedor',d:true},{t:'Curva ABC/AA com +20% aceleração',d:true},{t:'Pendentes cross-fornecedor TTL 45d',d:true},{t:'Histórico de menor preço por SKU',d:true}]},
+      {id:2,num:'02',name:'Cache & API',status:'done',
+       items:[{t:'13 tabelas SQLite: produtos, estoque, vendas',d:true},{t:'Tiny v3 com rate limiter 240 req/min',d:true},{t:'5 tipos de snapshot do Tiny',d:true},{t:'Deploy Railway com backup automático',d:true}]},
+      {id:3,num:'03',name:'Estabilização',status:'active',
+       items:[{t:'Migração SQLite → MySQL (blocker)',d:false},{t:'Descontar OCs abertas no cálculo',d:false},{t:'Fix sinal da curva AA',d:false},{t:'Endpoint de necessidade Tiny v3',d:false}]},
+      {id:4,num:'04',name:'Automação',status:'planned',
+       items:[{t:'Relatórios automáticos inteligentes',d:false},{t:'Alertas WhatsApp Business',d:false},{t:'Camada de dados unificada',d:false},{t:'Multi-unidade com visão consolidada',d:false}]},
+    ],
+    log:[
+      {id:1,t:'Fases 1 e 2 concluídas — pipeline e cache operacionais',ts:new Date('2025-05-18T18:00'),auto:false},
+      {id:2,t:'Fase 3 iniciada — blocker SQLite identificado',ts:new Date('2026-05-18T09:30'),auto:false},
+      {id:3,t:'OCs abertas: até 72% a mais sugerido em alguns SKUs',ts:new Date('2026-05-20T11:00'),auto:false},
+    ]
+  },
+  {
+    id:2, emoji:'🛒', name:'Orbital Vape',
+    desc:'Loja virtual na plataforma WBuy com integração via REST API',
+    status:'andamento', devs:1, start:'mai 2026',
+    phases:[
+      {id:1,num:'00',name:'Identidade',status:'done',
+       items:[{t:'Logo criado e aprovado',d:true},{t:'Estrutura de categorias mapeada',d:true},{t:'Esqueleto montado na WBuy',d:true}]},
+      {id:2,num:'01',name:'Integração API',status:'active',
+       items:[{t:'Gerar token Bearer no painel WBuy',d:false},{t:'Script Node.js para categorias',d:false},{t:'Validar via GET /category',d:false},{t:'Hierarquia nível 1, 2 e 3',d:false}]},
+      {id:3,num:'02',name:'SEO & Conteúdo',status:'planned',
+       items:[{t:'Meta title e description por categoria',d:false},{t:'Textos otimizados para buscadores',d:false},{t:'Imagens de banner',d:false},{t:'Validar URLs amigáveis (slugs)',d:false}]},
+      {id:4,num:'03',name:'Lançamento',status:'planned',
+       items:[{t:'Cadastro de produtos',d:false},{t:'Layout e identidade visual',d:false},{t:'Formas de pagamento e frete',d:false},{t:'Testes e publicação oficial',d:false}]},
+    ],
+    log:[
+      {id:1,t:'Fase 0 concluída — identidade visual e estrutura definidas',ts:new Date('2026-05-10T14:00'),auto:false},
+      {id:2,t:'Fase 1 iniciada — integração REST API em andamento',ts:new Date('2026-05-20T09:00'),auto:false},
+    ]
+  },
+  {
+    id:3, emoji:'🗺️', name:'Divisão de Sacolas SP',
+    desc:'Distribuição geográfica inteligente de pedidos na Grande São Paulo',
+    status:'andamento', devs:1, start:'2025',
+    phases:[
+      {id:1,num:'01',name:'v1.0 Produção',status:'done',
+       items:[{t:'Geocodificação híbrida com 7 fallbacks',d:true},{t:'Dicionário de 200+ bairros Grande SP',d:true},{t:'Mapa Leaflet + rotas reais OSRM',d:true},{t:'Import XLSX/CSV + exportação Lalamove',d:true}]},
+      {id:2,num:'02',name:'Qualidade',status:'active',
+       items:[{t:'Resolver sobreposição de pontos (fallback CB)',d:false},{t:'Expandir dicionário para bairros novos',d:false},{t:'Indicador visual de confiança de endereço',d:false},{t:'Aviso quando rota OSRM falha silenciosamente',d:false}]},
+      {id:3,num:'03',name:'Persistência',status:'planned',
+       items:[{t:'Cache de geocodificação entre rodadas',d:false},{t:'Salvar sessão ao fechar aba',d:false},{t:'Retomar dia de trabalho incompleto',d:false}]},
+      {id:4,num:'04',name:'Expansão',status:'vision',
+       items:[{t:'Cobertura além da Grande SP',d:false},{t:'Integração direta com sistemas de entrega',d:false},{t:'Histórico e analytics de rodadas',d:false}]},
+    ],
+    log:[
+      {id:1,t:'v1.0 em produção — 46+ pedidos distribuídos por rodada',ts:new Date('2025-01-01T10:00'),auto:false},
+      {id:2,t:'Rotas reais OSRM implementadas com fallback assíncrono',ts:new Date('2025-03-15T14:00'),auto:false},
+      {id:3,t:'Roadmap 2025 definido — 6 pendências priorizadas',ts:new Date('2025-05-01T09:00'),auto:false},
+    ]
+  },
+  {
+    id:4, emoji:'🧠', name:'Kush-Dev',
+    desc:'Bot Telegram que cria e melhora projetos com IA multi-provider',
+    status:'atencao', devs:1, start:'mai 2026',
+    phases:[
+      {id:1,num:'01',name:'Base',status:'done',
+       items:[{t:'/criar: geração + sandbox + GitHub',d:true},{t:'/melhorar: PR automático',d:true},{t:'Model router leve/pesado',d:true},{t:'3 módulos reutilizáveis, NORTH_STAR, Railway',d:true}]},
+      {id:2,num:'02',name:'Estabilização',status:'active',
+       items:[{t:'GROQ_API_KEY no Railway',d:false},{t:'Testar /melhorar no kush-dev',d:false},{t:'Research Agent (busca GitHub)',d:false},{t:'Sandbox com validação real, memória entre sessões',d:false}]},
+      {id:3,num:'03',name:'Multi-Agentes',status:'planned',
+       items:[{t:'CrewAI: Arquiteto, Dev, Tester, Corrector, Mentor',d:false},{t:'PM Agent (roadmap + updates automáticos)',d:false},{t:'/refine iterativo',d:false},{t:'Webhook n8n + pre-deploy checks',d:false}]},
+      {id:4,num:'04',name:'Expansão',status:'vision',
+       items:[{t:'Braço SEO com Diretor, Planejador, Copywriter',d:false},{t:'Deploy automatizado',d:false},{t:'Kush-Dev gerando Kush-Devs',d:false},{t:'GSC + SERP + CMS integrados',d:false}]},
+    ],
+    log:[
+      {id:1,t:'Fase 1 concluída — bot funcional, /criar e /melhorar operacionais',ts:new Date('2026-05-01T09:00'),auto:false},
+      {id:2,t:'Deploy Railway com PostgreSQL e GitHub API integrados',ts:new Date('2026-05-10T14:00'),auto:false},
+      {id:3,t:'Fase 2 iniciada — estabilização em produção',ts:new Date('2026-05-20T10:00'),auto:false},
+    ]
+  },
 ];
 let activeId=null;
 
-const SC={andamento:'#1D9E75',atencao:'#EF9F27',plan:'#378ADD',bloq:'#E24B4A',paus:'#888'};
-const pct=p=>{const t=p.tasks.length;return t?Math.round(p.tasks.filter(x=>x.d).length/t*100):0;};
+// ── Helpers ──────────────────────────────────────────
+const doneCount=p=>p.phases.filter(x=>x.status==='done').length;
+const pct=p=>p.phases.length?Math.round(doneCount(p)/p.phases.length*100):0;
 
-// ── Layout ─────────────────────────────────────────────
+// ── Layout ────────────────────────────────────────────
 function layout(){
   const W=window.innerWidth, H=window.innerHeight-50;
-  const panW=activeId?430:0, tW=W-panW;
+  const panW=activeId?420:0, tW=W-panW;
   const n=ps.length;
-  const pad=H*0.14;
+  const pad=H*0.12;
 
-  const root={x:62,y:H/2};
+  const root={x:60,y:H/2};
 
   const projs=ps.map((p,i)=>({
-    id:p.id, x:220,
-    y:n>1 ? pad+(H-pad*2)*i/(n-1) : H/2,
-    pct:pct(p), status:p.status, emoji:p.emoji, name:p.name,
+    id:p.id, x:200,
+    y:n>1?pad+(H-pad*2)*i/(n-1):H/2,
+    status:p.status, emoji:p.emoji, name:p.name, pct:pct(p),
   }));
 
-  const tasks=[];
+  const phases=[];
   ps.forEach((p,pi)=>{
     const proj=projs[pi];
-    const tot=p.tasks.length;
-    const cols=Math.min(tot,Math.ceil(tot/2));
-    const rows=Math.ceil(tot/cols);
-    const colW=Math.min(100,(tW-proj.x-120)/cols);
-    const rowH=Math.min(72,(H*0.18)/rows);
-    p.tasks.forEach((t,ti)=>{
-      const col=ti%cols, row=Math.floor(ti/cols);
-      const yOff=(row-(rows-1)/2)*rowH;
-      tasks.push({
-        id:`${p.id}-${t.id}`,pid:p.id,tid:t.id,
-        x:proj.x+130+col*colW, y:proj.y+yOff,
-        done:t.d, label:t.l, num:ti+1,
+    const spacing=Math.min(140,(tW-proj.x-80)/Math.max(p.phases.length,1));
+    p.phases.forEach((ph,phi)=>{
+      phases.push({
+        key:`${p.id}-${ph.id}`, pid:p.id, phid:ph.id,
+        x:proj.x+120+phi*spacing, y:proj.y,
+        status:ph.status, name:ph.name, num:ph.num,
+        items:ph.items,
       });
     });
   });
-  return {root,projs,tasks,H};
+
+  return{root,projs,phases};
 }
 
-// ── Render ─────────────────────────────────────────────
+// ── Render ────────────────────────────────────────────
 function render(){
   const l=layout();
-  renderSVG(l);
-  renderNodes(l);
-  renderStats();
+  renderSVG(l); renderNodes(l); renderStats();
 }
 
-function renderSVG({root,projs,tasks}){
+function renderSVG({root,projs,phases}){
   const svg=document.getElementById('tree-svg');
   svg.innerHTML='';
-  function curve(x1,y1,x2,y2,stroke,op,w){
-    const dx=(x2-x1)*0.45;
+
+  function curve(x1,y1,x2,y2,stroke,op,w,dash=''){
+    const dx=(x2-x1)*.45;
     const p=document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d',`M${x1},${y1} C${x1+dx},${y1} ${x2-dx},${y2} ${x2},${y2}`);
     p.setAttribute('fill','none');
     p.setAttribute('stroke',stroke);
     p.setAttribute('stroke-width',w);
     p.setAttribute('stroke-opacity',op);
+    if(dash)p.setAttribute('stroke-dasharray',dash);
     svg.appendChild(p);
   }
+
+  const SC2={andamento:'#1D9E75',atencao:'#EF9F27',plan:'#378ADD',bloq:'#E24B4A',paus:'#888'};
+
+  // Root → projects
   projs.forEach(pr=>{
-    const color=SC[ps.find(p=>p.id===pr.id).status]||'#fff';
-    curve(root.x+28,root.y, pr.x-34,pr.y, color,0.22,1.5);
+    const c=SC2[ps.find(p=>p.id===pr.id).status]||'#fff';
+    curve(root.x+26,root.y,pr.x-37,pr.y,c,0.2,1.5);
   });
-  tasks.forEach(t=>{
-    const proj=projs.find(p=>p.id===t.pid);
-    curve(proj.x+34,proj.y, t.x-18,t.y,
-      t.done?'rgba(255,255,255,0.45)':'rgba(255,255,255,0.08)',
-      t.done?0.4:0.12, t.done?1:0.8);
+
+  // Project → first phase & phase → phase
+  ps.forEach((p,pi)=>{
+    const proj=projs[pi];
+    const phs=phases.filter(x=>x.pid===p.id);
+    phs.forEach((ph,i)=>{
+      if(i===0){
+        // project to first phase
+        const c=SC2[p.status]||'#fff';
+        curve(proj.x+37,proj.y,ph.x-22,ph.y,c,0.22,1.5);
+      } else {
+        // phase to phase
+        const prev=phs[i-1];
+        const done=ph.status==='done';
+        const active=ph.status==='active';
+        const c=PSC[ph.status];
+        const op=done?0.38:active?0.28:ph.status==='planned'?0.12:0.06;
+        const w=done?1.5:1;
+        const dash=ph.status==='planned'?'4,3':ph.status==='vision'?'3,4':'';
+        curve(prev.x+22,prev.y,ph.x-22,ph.y,c,op,w,dash);
+      }
+    });
   });
 }
 
-function renderNodes({root,projs,tasks}){
+function renderNodes({root,projs,phases}){
   const layer=document.getElementById('node-layer');
   layer.innerHTML='';
 
@@ -323,44 +402,46 @@ function renderNodes({root,projs,tasks}){
   const re=document.createElement('div');
   re.className='nd nd-root';
   re.style.cssText=`left:${root.x}px;top:${root.y}px;`;
-  re.innerHTML='⬡';
+  re.textContent='⬡';
   layer.appendChild(re);
 
   // Projects
   projs.forEach(pr=>{
     const p=ps.find(x=>x.id===pr.id),s=SM[pr.status];
     const el=document.createElement('div');
-    el.className=`nd nd-proj ${s.sc}${activeId===pr.id?' active-nd':''}`;
+    el.className=`nd nd-proj ${s.sc}${activeId===pr.id?' sel':''}`;
     el.style.cssText=`left:${pr.x}px;top:${pr.y}px;`;
-    el.innerHTML=`<span class="ne">${pr.emoji}</span><span class="np">${pr.pct}%</span><span class="nd-lbl">${pr.name}</span>`;
+    el.innerHTML=`<span class="pe">${pr.emoji}</span><span class="pp">${pr.pct}%</span><span class="nd-lbl">${pr.name}</span>`;
     el.onclick=()=>openPanel(pr.id);
-    el.onmouseenter=e=>showTT(e,`${pr.name}\n${pr.pct}% — ${s.label}`);
+    el.onmouseenter=e=>showTT(e,null,pr.name,`${doneCount(p)}/${p.phases.length} fases · ${s.label}`);
     el.onmouseleave=hideTT;
     layer.appendChild(el);
   });
 
-  // Tasks
-  tasks.forEach(t=>{
+  // Phases
+  phases.forEach(ph=>{
     const el=document.createElement('div');
-    el.className=`nd nd-task ${t.done?'t-done':'t-pend'}`;
-    el.style.cssText=`left:${t.x}px;top:${t.y}px;`;
-    el.innerHTML=`<span class="nt">${t.done?'✓':t.num}</span>`;
-    el.onclick=e=>{e.stopPropagation();treeToggle(t.pid,t.tid);};
-    el.onmouseenter=e=>showTT(e,t.label);
+    el.className=`nd nd-phase ph-${ph.status}`;
+    el.style.cssText=`left:${ph.x}px;top:${ph.y}px;`;
+    const ico=ph.status==='done'?'✓':ph.status==='active'?'◉':ph.status==='planned'?'◌':'◈';
+    el.innerHTML=`<span class="ph-n">${ph.num}</span><span class="ph-ico">${ico}</span><span class="nd-lbl">${ph.name}</span>`;
+    el.onclick=e=>{e.stopPropagation();openPanel(ph.pid);};
+    el.onmouseenter=e=>showTT(e,ph.name+' · '+PSL[ph.status],null,null,ph.items.map(x=>x.t||x));
     el.onmouseleave=hideTT;
     layer.appendChild(el);
   });
 }
 
 function renderStats(){
-  const t=ps.length,avg=t?Math.round(ps.reduce((a,p)=>a+pct(p),0)/t):0;
-  const done=ps.reduce((a,p)=>a+p.tasks.filter(t=>t.d).length,0);
+  const t=ps.length;
+  const done=ps.reduce((a,p)=>a+doneCount(p),0);
+  const active=ps.filter(p=>p.phases.some(x=>x.status==='active')).length;
   document.getElementById('s-total').textContent=t;
-  document.getElementById('s-avg').textContent=avg+'%';
-  document.getElementById('s-done').textContent=done;
+  document.getElementById('s-phases').textContent=done;
+  document.getElementById('s-active').textContent=active;
 }
 
-// ── Panel ──────────────────────────────────────────────
+// ── Panel ─────────────────────────────────────────────
 function openPanel(id){
   activeId=id; render(); buildPanel(id);
   document.getElementById('panel').classList.add('open');
@@ -374,73 +455,72 @@ function buildPanel(id){
   const p=ps.find(x=>x.id===id),s=SM[p.status];
   document.getElementById('ph-emoji').textContent=p.emoji;
   document.getElementById('ph-name').textContent=p.name;
-  const pb=document.getElementById('ph-badge');
-  pb.className=s.b; pb.textContent=s.label;
+  document.getElementById('ph-desc').textContent=p.desc;
+  const pb2=document.getElementById('ph-badge');
+  pb2.className=s.b; pb2.textContent=s.label;
 
   const body=document.getElementById('pb');
   body.innerHTML='';
 
+  // Progress pips
+  const pov=document.createElement('div');
+  pov.innerHTML=`<div class="ps-h">Evolução <span class="ps-c">${doneCount(p)}/${p.phases.length} fases</span></div>
+    <div class="p-overview">${p.phases.map(ph=>`<div class="p-phase-pip ${ph.status}"></div>`).join('')}</div>`;
+  body.appendChild(pov);
+
+  // Phases
+  const phs=document.createElement('div');
+  phs.innerHTML='<div class="ps-h">⬡ Fases</div>';
+  const phList=document.createElement('div');
+  phList.style.cssText='display:flex;flex-direction:column;gap:6px;';
+  p.phases.forEach(ph=>{
+    const row=document.createElement('div');
+    row.className=`phase-row ${ph.status}`;
+    row.innerHTML=`
+      <div class="phase-row-top">
+        <span class="ph-row-num">${ph.num}</span>
+        <span class="ph-row-name">${ph.name}</span>
+        <span class="ph-row-badge">${PSL[ph.status]}</span>
+        <span class="ph-row-chevron">›</span>
+      </div>
+      <div class="phase-items-list">
+        ${ph.items.map(item=>`<div class="ph-item"><div class="ph-item-dot"></div><span>${item}</span></div>`).join('')}
+      </div>`;
+    row.onclick=()=>{row.classList.toggle('expanded');};
+    phList.appendChild(row);
+  });
+  phs.appendChild(phList);
+  body.appendChild(phs);
+
+  // Log
+  const ls=document.createElement('div');
+  ls.innerHTML=`<div class="ps-h">🕓 Histórico <span class="ps-c" id="lc-${id}">${p.log.length}</span></div>
+    <div id="ll-${id}" style="display:flex;flex-direction:column;"></div>
+    <div class="ir"><input type="text" id="li-${id}" placeholder="Registrar atualização..."><button class="ib" onclick="addLog(${id})">↑</button></div>`;
+  body.appendChild(ls);
+  rLog(id);
+  const li=document.getElementById('li-'+id);
+  if(li)li.addEventListener('keydown',e=>{if(e.key==='Enter')addLog(id);});
+
   // Edit
   const es=document.createElement('div');
-  es.innerHTML=`
-    <div class="ps-h">⚙️ Configurações</div>
+  es.innerHTML=`<div class="ps-h">⚙️ Configurações</div>
     <div class="eg">
       <div class="er"><span class="el">Nome</span><input type="text" value="${p.name}" oninput="uf(${id},'name',this.value)"></div>
       <div class="er"><span class="el">Emoji</span><input type="text" value="${p.emoji}" oninput="uf(${id},'emoji',this.value)" style="max-width:56px"></div>
+      <div class="er"><span class="el">Descrição</span><input type="text" value="${p.desc}" oninput="uf(${id},'desc',this.value)"></div>
       <div class="er"><span class="el">Status</span>
         <select onchange="uf(${id},'status',this.value)">
           ${Object.entries(SM).map(([k,v])=>`<option value="${k}"${p.status===k?' selected':''}>${v.label}</option>`).join('')}
         </select>
       </div>
-      <div class="er"><span class="el">Início</span><input type="text" value="${p.start}" oninput="uf(${id},'start',this.value)"></div>
-      <div class="er">
-        <span class="el">Devs</span>
+      <div class="er"><span class="el">Devs</span>
         <input type="range" min="0" max="10" value="${p.devs}" oninput="uf(${id},'devs',+this.value);document.getElementById('dvo-${id}').textContent=this.value">
         <span class="eo" id="dvo-${id}">${p.devs}</span>
       </div>
       <button class="db" onclick="rmP(${id})">🗑️ remover projeto</button>
     </div>`;
   body.appendChild(es);
-
-  // Tasks
-  const done=p.tasks.filter(t=>t.d).length;
-  const ts=document.createElement('div');
-  ts.innerHTML=`
-    <div class="ps-h">✅ Tarefas <span class="ps-c" id="tc-${id}">${done}/${p.tasks.length}</span></div>
-    <div id="tl-${id}" style="display:flex;flex-direction:column;gap:5px;"></div>
-    <div class="ir"><input type="text" id="ti-${id}" placeholder="Nova tarefa..."><button class="ib" onclick="addTask(${id})">+ add</button></div>`;
-  body.appendChild(ts);
-
-  // Log
-  const ls=document.createElement('div');
-  ls.innerHTML=`
-    <div class="ps-h">🕓 Histórico <span class="ps-c" id="lc-${id}">${p.log.length}</span></div>
-    <div id="ll-${id}" style="display:flex;flex-direction:column;"></div>
-    <div class="ir"><input type="text" id="li-${id}" placeholder="Registrar atualização..."><button class="ib" onclick="addLog(${id})">↑</button></div>`;
-  body.appendChild(ls);
-
-  rTasks(id); rLog(id);
-  const ti=document.getElementById('ti-'+id);
-  if(ti)ti.addEventListener('keydown',e=>{if(e.key==='Enter')addTask(id);});
-  const li=document.getElementById('li-'+id);
-  if(li)li.addEventListener('keydown',e=>{if(e.key==='Enter')addLog(id);});
-}
-
-function rTasks(id){
-  const p=ps.find(x=>x.id===id),list=document.getElementById('tl-'+id);
-  if(!list)return;
-  list.innerHTML='';
-  p.tasks.forEach(t=>{
-    const el=document.createElement('div');
-    el.className='tr'+(t.d?' dn':'');
-    el.innerHTML=`<div class="tc${t.d?' ck':''}" onclick="toggleTask(${id},${t.id})">${t.d?'✓':''}</div>
-      <span class="tl">${t.l}</span>
-      <button class="tx" onclick="delTask(${id},${t.id})">✕</button>`;
-    list.appendChild(el);
-  });
-  const cnt=document.getElementById('tc-'+id);
-  if(cnt)cnt.textContent=p.tasks.filter(t=>t.d).length+'/'+p.tasks.length;
-  render();
 }
 
 function rLog(id){
@@ -449,57 +529,29 @@ function rLog(id){
   list.innerHTML='';
   [...p.log].reverse().forEach((l,i)=>{
     const el=document.createElement('div');
-    el.className='li';
-    el.innerHTML=`<div class="ldw"><div class="ld${i===0?' fr':''}"></div></div>
-      <div><div class="lt">${l.t}</div><div class="lts">${fmt(l.ts)}${l.auto?'<span class="la">· auto</span>':''}</div></div>`;
+    el.className='log-item';
+    el.innerHTML=`<div class="log-dw"><div class="log-d${i===0?' fr':''}"></div></div>
+      <div><div class="log-t">${l.t}</div><div class="log-ts">${fmt(l.ts)}${l.auto?'<span class="log-auto">· auto</span>':''}</div></div>`;
     list.appendChild(el);
   });
   const cnt=document.getElementById('lc-'+id);
   if(cnt)cnt.textContent=p.log.length;
 }
 
-// ── Actions ────────────────────────────────────────────
+// ── Actions ───────────────────────────────────────────
 function uf(id,field,val){
   const p=ps.find(x=>x.id===id); p[field]=val;
-  if(field==='name')document.getElementById('ph-name').textContent=val;
-  if(field==='emoji')document.getElementById('ph-emoji').textContent=val;
-  if(field==='status'){const s=SM[val];const pb=document.getElementById('ph-badge');pb.className=s.b;pb.textContent=s.label;}
+  if(field==='name'){document.getElementById('ph-name').textContent=val;}
+  if(field==='emoji'){document.getElementById('ph-emoji').textContent=val;}
+  if(field==='desc'){document.getElementById('ph-desc').textContent=val;}
+  if(field==='status'){const s=SM[val];const pb2=document.getElementById('ph-badge');pb2.className=s.b;pb2.textContent=s.label;}
   render();
-}
-function toggleTask(pid,tid){
-  const p=ps.find(x=>x.id===pid),t=p.tasks.find(x=>x.id===tid);
-  t.d=!t.d;
-  p.log.push({id:Date.now(),t:(t.d?'✅':'↩️')+' '+t.l,ts:new Date(),auto:true});
-  rTasks(pid); rLog(pid); render();
-}
-function treeToggle(pid,tid){
-  const p=ps.find(x=>x.id===pid),t=p.tasks.find(x=>x.id===tid);
-  t.d=!t.d;
-  p.log.push({id:Date.now(),t:(t.d?'✅':'↩️')+' '+t.l,ts:new Date(),auto:true});
-  if(activeId===pid){rTasks(pid);rLog(pid);}
-  render();
-}
-function delTask(pid,tid){
-  const p=ps.find(x=>x.id===pid),t=p.tasks.find(x=>x.id===tid);
-  p.tasks=p.tasks.filter(x=>x.id!==tid);
-  p.log.push({id:Date.now(),t:'🗑️ "'+t.l+'"',ts:new Date(),auto:true});
-  rTasks(pid); rLog(pid); render();
-}
-function addTask(id){
-  const inp=document.getElementById('ti-'+id),val=inp.value.trim();
-  if(!val)return;
-  const p=ps.find(x=>x.id===id);
-  p.tasks.push({id:Date.now(),l:val,d:false});
-  p.log.push({id:Date.now()+1,t:'➕ "'+val+'"',ts:new Date(),auto:true});
-  inp.value=''; rTasks(id); rLog(id); render();
 }
 function addLog(id){
   const inp=document.getElementById('li-'+id),val=inp.value.trim();
   if(!val)return;
   ps.find(x=>x.id===id).log.push({id:Date.now(),t:val,ts:new Date(),auto:false});
   inp.value=''; rLog(id);
-  const cnt=document.getElementById('lc-'+id);
-  if(cnt)cnt.textContent=ps.find(x=>x.id===id).log.length;
 }
 function rmP(id){
   if(!confirm('Remover este projeto?'))return;
@@ -508,34 +560,99 @@ function rmP(id){
 function addP(){
   const emojis=['🚀','💡','⚙️','🎯','🔧','📦','🌐','🧩'];
   const id=Date.now();
-  ps.push({id,emoji:emojis[Math.floor(Math.random()*emojis.length)],name:'Novo projeto',status:'plan',devs:1,start:'hoje',
-    tasks:[],log:[{id:1,t:'🎉 Projeto criado',ts:new Date(),auto:false}]});
+  ps.push({
+    id, emoji:emojis[Math.floor(Math.random()*emojis.length)],
+    name:'Novo projeto', desc:'Descrição do projeto',
+    status:'plan', devs:1, start:'hoje',
+    phases:[
+      {id:1,num:'01',name:'Início',status:'active',items:['Definir escopo','Configurar ambiente']},
+      {id:2,num:'02',name:'Fase 2',status:'planned',items:['A definir']},
+    ],
+    log:[{id:1,t:'🎉 Projeto criado',ts:new Date(),auto:false}]
+  });
   openPanel(id); render();
 }
 
-// ── Tooltip ────────────────────────────────────────────
-const tt=document.getElementById('tt');
-function showTT(e,text){tt.textContent=text;tt.style.display='block';tt.style.left=(e.clientX+14)+'px';tt.style.top=(e.clientY-8)+'px';}
-function hideTT(){tt.style.display='none';}
+// ── Tooltip ───────────────────────────────────────────
+const ttEl=document.getElementById('tt');
+function showTT(e,title,sub,meta,items){
+  let html='';
+  if(title)html+=`<div class="tt-title">${title}</div>`;
+  if(sub)html+=`<div class="tt-title">${sub}</div>`;
+  if(meta)html+=`<div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;">${meta}</div>`;
+  if(items&&items.length){
+    html+=items.slice(0,4).map(it=>`<div class="tt-item"><div class="tt-dot"></div><span>${it}</span></div>`).join('');
+    if(items.length>4)html+=`<div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:3px;">+${items.length-4} mais</div>`;
+  }
+  ttEl.innerHTML=html; ttEl.style.display='block';
+  ttEl.style.left=(e.clientX+14)+'px'; ttEl.style.top=(e.clientY-8)+'px';
+}
+function hideTT(){ttEl.style.display='none';}
 
-// ── Stars ──────────────────────────────────────────────
+// ── Stars ─────────────────────────────────────────────
 function stars(){
   const c=document.getElementById('bg'),ctx=c.getContext('2d');
   c.width=window.innerWidth; c.height=window.innerHeight;
   ctx.clearRect(0,0,c.width,c.height);
-  for(let i=0;i<140;i++){
+  for(let i=0;i<160;i++){
     ctx.beginPath();
-    ctx.arc(Math.random()*c.width,Math.random()*c.height,Math.random()*1.1+0.1,0,Math.PI*2);
-    ctx.fillStyle=`rgba(255,255,255,${Math.random()*.35+.04})`;
+    ctx.arc(Math.random()*c.width,Math.random()*c.height,Math.random()*1.1+.1,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${Math.random()*.3+.03})`;
     ctx.fill();
   }
 }
 
-// ── Init ───────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────
 const n=new Date();
 document.getElementById('today-date').textContent=n.getDate()+' '+MN[n.getMonth()]+' '+n.getFullYear();
 stars(); render();
 window.addEventListener('resize',()=>{stars();render();});
+
+// ── Persistência ──────────────────────────────────────
+let saveTimer=null;
+
+async function loadState(){
+  try{
+    const r=await fetch('/api/load');
+    if(!r.ok)return;
+    const data=await r.json();
+    if(data&&data.projects){
+      // Restore dates from strings
+      data.projects.forEach(p=>{
+        p.log.forEach(l=>{ l.ts=new Date(l.ts); });
+      });
+      ps=data.projects;
+      render();
+    }
+  }catch(e){ console.log('Sem dados salvos ainda'); }
+}
+
+function saveState(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    try{
+      await fetch('/api/save',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({projects:ps}),
+      });
+    }catch(e){ console.error('Erro ao salvar',e); }
+  },800);
+}
+
+// Wrap state-changing actions to trigger save
+const _origUf=uf;
+uf=function(id,field,val){ _origUf(id,field,val); saveState(); };
+const _origRmP=rmP;
+rmP=function(id){ _origRmP(id); saveState(); };
+const _origAddP=addP;
+addP=function(){ _origAddP(); saveState(); };
+const _origAddLog=addLog;
+addLog=function(id){ _origAddLog(id); saveState(); };
+
+// Load on start
+loadState();
+
 </script>
 </body>
 </html>
