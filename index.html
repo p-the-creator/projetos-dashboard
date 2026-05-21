@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orion v2.0</title>
+<title>Orion v3.1</title>
 <style>
 html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background:#06080e;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;user-select:none;}
 #bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
@@ -32,37 +32,49 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background
 
 .nd-root{width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 38% 35%,rgba(255,255,255,.1),rgba(255,255,255,.02));border:1.5px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 20px rgba(255,255,255,.04);}
 
+/* ── Nó de projeto ─────────────────────────────────── */
 .nd-proj{width:74px;height:74px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:2px solid;transition:filter .2s,transform .2s;}
 .nd-proj:hover{filter:brightness(1.25);}
 .nd-proj.sel{transform:translate(-50%,-50%) scale(1.08);}
 .nd-proj .pe{font-size:22px;line-height:1;}
 .nd-proj .pp{font-size:9px;font-weight:700;opacity:.9;}
-.nd-proj .nd-lbl{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;color:rgba(255,255,255,.55);pointer-events:none;max-width:120px;overflow:hidden;text-overflow:ellipsis;}
+/* Label principal do projeto */
+.nd-proj .nd-lbl{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;color:rgba(255,255,255,.55);pointer-events:none;max-width:130px;overflow:hidden;text-overflow:ellipsis;}
+/* Sublabel: fase ativa atual */
+.nd-proj .nd-sublbl{position:absolute;bottom:-33px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;color:rgba(249,115,22,.75);pointer-events:none;max-width:130px;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;}
 
-.nd-phase{width:44px;height:44px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px solid;transition:filter .15s;}
+/* ── Nó de fase — aumentado de 44 → 60px ──────────── */
+.nd-phase{width:60px;height:60px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:1.5px solid;transition:filter .15s;}
 .nd-phase:hover{filter:brightness(1.35);}
-.nd-phase .ph-n{font-size:9px;font-weight:700;opacity:.6;}
-.nd-phase .ph-ico{font-size:11px;line-height:1;}
-.nd-phase .nd-lbl{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;pointer-events:none;max-width:90px;overflow:hidden;text-overflow:ellipsis;text-align:center;}
+.nd-phase .ph-n{font-size:10px;font-weight:700;opacity:.55;line-height:1;}
+.nd-phase .ph-ico{font-size:14px;line-height:1;}
+.nd-phase .ph-tasks{font-size:9px;opacity:.45;line-height:1;margin-top:1px;}
+.nd-phase .nd-lbl{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11px;pointer-events:none;max-width:100px;overflow:hidden;text-overflow:ellipsis;text-align:center;}
 
-/* Hold ring — overlay circular progress, não afeta layout */
-.hold-ring{position:absolute;inset:-7px;border-radius:50%;pointer-events:none;z-index:2;background:conic-gradient(rgba(255,255,255,0) 0%, rgba(255,255,255,0) 100%);-webkit-mask:radial-gradient(farthest-side,transparent 58%,black 59%);mask:radial-gradient(farthest-side,transparent 58%,black 59%);}
+/* ── Hold ring ─────────────────────────────────────── */
+.hold-ring{position:absolute;inset:-8px;border-radius:50%;pointer-events:none;z-index:3;background:conic-gradient(rgba(255,255,255,0) 0%,rgba(255,255,255,0) 100%);-webkit-mask:radial-gradient(farthest-side,transparent 61%,black 62%);mask:radial-gradient(farthest-side,transparent 61%,black 62%);}
 
-.ph-done   {border-color:rgba(34,197,94,.7);background:radial-gradient(circle at 38% 35%,rgba(34,197,94,.22),rgba(34,197,94,.05));box-shadow:0 0 14px rgba(34,197,94,.25);}
-.ph-done .nd-lbl{color:rgba(34,197,94,.7);}
-.ph-active {border-color:rgba(249,115,22,.8);background:radial-gradient(circle at 38% 35%,rgba(249,115,22,.25),rgba(249,115,22,.07));box-shadow:0 0 18px rgba(249,115,22,.4);width:50px;height:50px;}
+/* ── Progress ring estático (itens concluídos) ──────── */
+.ph-prog-ring{position:absolute;inset:-8px;border-radius:50%;pointer-events:none;z-index:2;-webkit-mask:radial-gradient(farthest-side,transparent 61%,black 62%);mask:radial-gradient(farthest-side,transparent 61%,black 62%);opacity:.45;transition:background .4s;}
+
+/* ── Estados de fase ──────────────────────────────── */
+.ph-done   {border-color:rgba(34,197,94,.75);background:radial-gradient(circle at 38% 35%,rgba(34,197,94,.22),rgba(34,197,94,.05));box-shadow:0 0 16px rgba(34,197,94,.28);}
+.ph-done .nd-lbl{color:rgba(34,197,94,.75);}
+.ph-active {border-color:rgba(249,115,22,.85);background:radial-gradient(circle at 38% 35%,rgba(249,115,22,.28),rgba(249,115,22,.08));box-shadow:0 0 22px rgba(249,115,22,.45);width:68px;height:68px;}
 .ph-active .nd-lbl{color:rgba(249,115,22,.9);}
-.ph-planned{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.05);opacity:.55;}
-.ph-planned .nd-lbl{color:rgba(59,130,246,.6);}
-.ph-vision {border-color:rgba(139,92,246,.25);background:rgba(139,92,246,.03);opacity:.32;}
-.ph-vision .nd-lbl{color:rgba(139,92,246,.55);}
+.ph-planned{border-color:rgba(59,130,246,.4);background:rgba(59,130,246,.06);opacity:.6;}
+.ph-planned .nd-lbl{color:rgba(59,130,246,.65);}
+.ph-vision {border-color:rgba(139,92,246,.3);background:rgba(139,92,246,.04);opacity:.38;}
+.ph-vision .nd-lbl{color:rgba(139,92,246,.6);}
 
+/* ── Estados de projeto ─────────────────────────────── */
 .s-andamento{border-color:#1D9E75;background:radial-gradient(circle at 38% 35%,rgba(29,158,117,.25),rgba(29,158,117,.06));color:#1D9E75;box-shadow:0 0 24px rgba(29,158,117,.2);}
 .s-atencao  {border-color:#EF9F27;background:radial-gradient(circle at 38% 35%,rgba(239,159,39,.25),rgba(239,159,39,.06));color:#EF9F27;box-shadow:0 0 24px rgba(239,159,39,.2);}
 .s-plan     {border-color:#378ADD;background:radial-gradient(circle at 38% 35%,rgba(55,138,221,.25),rgba(55,138,221,.06));color:#378ADD;box-shadow:0 0 24px rgba(55,138,221,.2);}
 .s-bloq     {border-color:#E24B4A;background:radial-gradient(circle at 38% 35%,rgba(226,75,74,.25),rgba(226,75,74,.06));color:#E24B4A;box-shadow:0 0 24px rgba(226,75,74,.2);}
 .s-paus     {border-color:#888;background:radial-gradient(circle at 38% 35%,rgba(136,136,136,.2),rgba(136,136,136,.04));color:#888;}
 
+/* ── Painel lateral ─────────────────────────────────── */
 #panel{position:fixed;top:50px;right:-440px;bottom:0;width:420px;background:rgba(6,8,14,.98);border-left:1px solid rgba(255,255,255,.06);transition:right .35s cubic-bezier(.4,0,.2,1);z-index:150;display:flex;flex-direction:column;backdrop-filter:blur(14px);}
 #panel.open{right:0;}
 #ph{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:10px;flex-shrink:0;}
@@ -77,7 +89,6 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background
 #pb::-webkit-scrollbar{width:3px;}
 #pb::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border-radius:2px;}
 
-/* Títulos de seção — maiores e mais claros */
 .ps-h{font-size:13px;font-weight:700;letter-spacing:.02em;color:rgba(255,255,255,.8);margin-bottom:12px;display:flex;align-items:center;gap:8px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.07);}
 .ps-c{margin-left:auto;font-size:11px;font-weight:400;color:rgba(255,255,255,.3);}
 
@@ -99,7 +110,6 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background
 .ph-row-name{font-size:13px;font-weight:600;flex:1;}
 .ph-row-cnt{font-size:10px;color:rgba(255,255,255,.22);}
 
-/* Botão avançar com hold — barra linear */
 .ph-row-adv{position:relative;overflow:hidden;font-size:10px;background:none;border:1px solid rgba(255,255,255,.12);border-radius:5px;padding:3px 10px;cursor:pointer;color:rgba(255,255,255,.45);transition:color .15s,border-color .15s;flex-shrink:0;}
 .ph-row-adv:hover{border-color:rgba(255,255,255,.28);color:rgba(255,255,255,.8);}
 .ph-row-adv-fill{position:absolute;top:0;left:0;height:100%;width:0%;background:rgba(255,255,255,.15);pointer-events:none;border-radius:4px;}
@@ -121,7 +131,6 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background
 .ph-item-del{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.15);font-size:12px;padding:0;opacity:0;flex-shrink:0;line-height:1;margin-top:3px;}
 .ph-item-row:hover .ph-item-del{opacity:1;}
 
-/* Campo de nova tarefa por fase */
 .ph-add-row{display:flex;gap:6px;margin-top:8px;}
 .ph-add-inp{flex:1;font-size:11px;padding:5px 8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:6px;color:rgba(255,255,255,.7);outline:none;}
 .ph-add-inp:focus{border-color:rgba(255,255,255,.18);}
@@ -154,7 +163,7 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background
 
 <div id="topbar">
   <span class="tb-title">🌌 Orion</span>
-  <span class="tb-ver">v2.0</span>
+  <span class="tb-ver">v3.2</span>
   <div class="tb-div"></div>
   <div class="tb-stats">
     <div class="tb-stat"><span class="tb-num" id="s-total">0</span>projetos</div>
@@ -195,7 +204,6 @@ const SM={
 };
 const PSC={done:'#22C55E',active:'#F97316',planned:'#3B82F6',vision:'#8B5CF6'};
 const PSL={done:'Concluída',active:'Em progresso',planned:'Planejada',vision:'Visão'};
-// Ordem lógica: visão → planejada → ativa → concluída
 const CYCLE=['vision','planned','active','done'];
 const MN=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 
@@ -214,12 +222,39 @@ let ps=[
      {id:3,num:'02',name:'SEO & Conteúdo',status:'planned',items:[{t:'Meta title e description por categoria',d:false},{t:'Textos otimizados para buscadores',d:false},{t:'Imagens de banner',d:false},{t:'Validar URLs amigáveis',d:false}]},
      {id:4,num:'03',name:'Lançamento',status:'planned',items:[{t:'Cadastro de produtos',d:false},{t:'Layout e identidade visual',d:false},{t:'Formas de pagamento e frete',d:false},{t:'Testes e publicação oficial',d:false}]},
    ]},
-  {id:3,emoji:'🗺️',name:'Divisão de Sacolas SP',desc:'Distribuição geográfica inteligente de pedidos na Grande São Paulo',status:'andamento',devs:1,start:'2025',
+  {id:3,emoji:'🗺️',name:'Divisão de Sacolas SP',desc:'Sistema de rotas motoboy com distribuição geográfica inteligente — Jadlog',status:'andamento',devs:1,start:'mai 2025',
    phases:[
-     {id:1,num:'01',name:'v1.0 Produção',status:'done',items:[{t:'Geocodificação híbrida com 7 fallbacks',d:true},{t:'Dicionário de 200+ bairros Grande SP',d:true},{t:'Mapa Leaflet + rotas reais OSRM',d:true},{t:'Import XLSX/CSV + exportação Lalamove',d:true}]},
-     {id:2,num:'02',name:'Qualidade',status:'active',items:[{t:'Resolver sobreposição de pontos (fallback CB)',d:false},{t:'Expandir dicionário para bairros novos',d:false},{t:'Indicador visual de confiança de endereço',d:false},{t:'Aviso quando rota OSRM falha silenciosamente',d:false}]},
-     {id:3,num:'03',name:'Persistência',status:'planned',items:[{t:'Cache de geocodificação entre rodadas',d:false},{t:'Salvar sessão ao fechar aba',d:false},{t:'Retomar dia de trabalho incompleto',d:false}]},
-     {id:4,num:'04',name:'Expansão',status:'vision',items:[{t:'Cobertura além da Grande SP',d:false},{t:'Integração direta com sistemas de entrega',d:false},{t:'Histórico e analytics de rodadas',d:false}]},
+     {id:1,num:'01',name:'v1.0 Produção',status:'done',items:[
+       {t:'Importação XLSX/CSV com detecção automática de colunas',d:true},
+       {t:'K-means++ geográfico com afinidade por zona',d:true},
+       {t:'Mapa interativo com marcadores coloridos por sacola',d:true},
+       {t:'Mensagem WhatsApp formatada por sacola',d:true},
+       {t:'Exportação CSV para Lalamove',d:true},
+       {t:'Pedido manual com auto-atribuição por centroide',d:true},
+     ]},
+     {id:2,num:'02',name:'Ajustes',status:'active',items:[
+       {t:'Atualizar sacolas sem redistribuir do zero',d:false},
+       {t:'Renomear CSV: Sacola_Cor_DD-MM-AAAA.csv',d:false},
+       {t:'Persistência: salvar pedidos entre sessões',d:false},
+       {t:'Botão de cópia na aba Pedidos',d:false},
+     ]},
+     {id:3,num:'03',name:'Automação',status:'planned',items:[
+       {t:'Integração Tiny: puxar pedidos sem digitação',d:false},
+       {t:'Pedido aparece no sistema sem intervenção humana',d:false},
+       {t:'Integração n8n: Tiny → rota → motorista',d:false},
+       {t:'Rota montada fim a fim sem intervenção humana',d:false},
+     ]},
+     {id:4,num:'04',name:'Histórico & Mobile',status:'planned',items:[
+       {t:'Schema: data, origem, destino, motorista, horários, status',d:false},
+       {t:'Toda rota concluída gera registro completo',d:false},
+       {t:'Bot Telegram para Danilo (motorista)',d:false},
+       {t:'Danilo recebe rota e atualiza status sem ligar',d:false},
+     ]},
+     {id:5,num:'05',name:'Motoboy Externo',status:'vision',items:[
+       {t:'Confirmar existência de API com transportadora parceira',d:false},
+       {t:'Obter documentação da API externa',d:false},
+       {t:'Envio de rota para empresa parceira pelo mesmo fluxo',d:false},
+     ]},
    ]},
   {id:4,emoji:'🧠',name:'Kush-Dev',desc:'Bot Telegram que cria e melhora projetos com IA multi-provider',status:'atencao',devs:1,start:'mai 2026',
    phases:[
@@ -270,12 +305,14 @@ function clearHold(){
   if(!holdState)return;
   clearInterval(holdState);
   holdState=null;
-  // reset all rings and fills
   document.querySelectorAll('.hold-ring').forEach(r=>r.style.background='');
   document.querySelectorAll('.ph-row-adv-fill').forEach(f=>f.style.width='0%');
 }
 
 // ── Layout ────────────────────────────────────────────
+// Raio usado para calcular pontos de conexão das linhas
+const R_PROJ=37, R_PHASE=30;
+
 function layout(){
   const W=window.innerWidth,H=window.innerHeight-50;
   const panW=activeId?420:0,tW=W-panW;
@@ -288,10 +325,11 @@ function layout(){
   const phases=[];
   ps.forEach((p,pi)=>{
     const proj=projs[pi];
-    const spacing=Math.min(140,(tW-proj.x-80)/Math.max(p.phases.length,1));
+    // espaçamento mínimo maior para acomodar nós de 60px
+    const spacing=Math.min(150,(tW-proj.x-100)/Math.max(p.phases.length,1));
     p.phases.forEach((ph,phi)=>{
       phases.push({key:`${p.id}-${ph.id}`,pid:p.id,phid:ph.id,
-        x:proj.x+120+phi*spacing,y:proj.y,
+        x:proj.x+130+phi*spacing,y:proj.y,
         status:ph.status,name:ph.name,num:ph.num,items:ph.items});
     });
   });
@@ -316,23 +354,28 @@ function renderSVG({root,projs,phases}){
     svg.appendChild(p);
   }
   const SC2={andamento:'#1D9E75',atencao:'#EF9F27',plan:'#378ADD',bloq:'#E24B4A',paus:'#888'};
+
+  // Linhas root → projeto
   projs.forEach(pr=>{
     const c=SC2[ps.find(p=>p.id===pr.id).status]||'#fff';
-    curve(root.x+26,root.y,pr.x-37,pr.y,c,0.2,1.5);
+    curve(root.x+26,root.y,pr.x-R_PROJ,pr.y,c,0.3,2);
   });
+
+  // Linhas projeto → fases e fase → fase
   ps.forEach((p,pi)=>{
     const proj=projs[pi];
     const phs=phases.filter(x=>x.pid===p.id);
     phs.forEach((ph,i)=>{
       if(i===0){
-        curve(proj.x+37,proj.y,ph.x-22,proj.y,SC2[p.status]||'#fff',0.22,1.5);
+        // proj → primeira fase
+        curve(proj.x+R_PROJ,proj.y,ph.x-R_PHASE,proj.y,SC2[p.status]||'#fff',0.35,2);
       } else {
         const prev=phs[i-1];
         const c=PSC[ph.status];
-        const op=ph.status==='done'?0.38:ph.status==='active'?0.28:ph.status==='planned'?0.12:0.06;
-        const w=ph.status==='done'?1.5:1;
+        const op=ph.status==='done'?0.52:ph.status==='active'?0.42:ph.status==='planned'?0.2:0.1;
+        const w=ph.status==='done'?2:ph.status==='active'?2:1.2;
         const dash=ph.status==='planned'?'4,3':ph.status==='vision'?'3,4':'';
-        curve(prev.x+22,prev.y,ph.x-22,ph.y,c,op,w,dash);
+        curve(prev.x+R_PHASE,prev.y,ph.x-R_PHASE,ph.y,c,op,w,dash);
       }
     });
   });
@@ -340,38 +383,59 @@ function renderSVG({root,projs,phases}){
 
 function renderNodes({root,projs,phases}){
   const layer=document.getElementById('node-layer');layer.innerHTML='';
+
+  // Nó raiz
   const re=document.createElement('div');
   re.className='nd nd-root';re.style.cssText=`left:${root.x}px;top:${root.y}px;`;
   re.textContent='⬡';layer.appendChild(re);
 
+  // Nós de projeto
   projs.forEach(pr=>{
     const p=ps.find(x=>x.id===pr.id),s=SM[pr.status];
+    const activePhase=p.phases.find(x=>x.status==='active');
     const el=document.createElement('div');
     el.className=`nd nd-proj ${s.sc}${activeId===pr.id?' sel':''}`;
     el.style.cssText=`left:${pr.x}px;top:${pr.y}px;`;
-    el.innerHTML=`<span class="pe">${pr.emoji}</span><span class="pp">${pr.pct}%</span><span class="nd-lbl">${pr.name}</span>`;
+    el.innerHTML=`
+      <span class="pe">${pr.emoji}</span>
+      <span class="pp">${pr.pct}%</span>
+      <span class="nd-lbl">${pr.name}</span>
+      ${activePhase?`<span class="nd-sublbl">◉ ${activePhase.name}</span>`:''}
+    `;
     el.onclick=()=>openPanel(pr.id);
-    el.onmouseenter=e=>showTT(e,pr.name,`${donePhases(p)}/${p.phases.length} fases concluídas · ${s.label}`,null);
+    el.onmouseenter=e=>showTT(e,pr.name,`${donePhases(p)}/${p.phases.length} fases concluídas · ${s.label}`);
     el.onmouseleave=hideTT;
     layer.appendChild(el);
   });
 
+  // Nós de fase
   phases.forEach(ph=>{
     const el=document.createElement('div');
     el.className=`nd nd-phase ph-${ph.status}`;
     el.style.cssText=`left:${ph.x}px;top:${ph.y}px;`;
+
     const ico=ph.status==='done'?'✓':ph.status==='active'?'◉':ph.status==='planned'?'◌':'◈';
-    // hold-ring fica dentro do nó, absolutamente posicionado
-    el.innerHTML=`<div class="hold-ring"></div><span class="ph-n">${ph.num}</span><span class="ph-ico">${ico}</span><span class="nd-lbl">${ph.name}</span>`;
+    const doneItems=ph.items.filter(x=>x.d).length;
+    const totalItems=ph.items.length;
+    const progPct=totalItems>0?Math.round(doneItems/totalItems*100):0;
+    const progColor=PSC[ph.status];
+
+    el.innerHTML=`
+      <div class="hold-ring"></div>
+      <div class="ph-prog-ring" style="background:conic-gradient(${progColor} ${progPct}%, transparent ${progPct}%)"></div>
+      <span class="ph-n">${ph.num}</span>
+      <span class="ph-ico">${ico}</span>
+      <span class="ph-tasks">${doneItems}/${totalItems}</span>
+      <span class="nd-lbl">${ph.name}</span>
+    `;
 
     el.addEventListener('mousedown',e=>startHoldNode(e,el,()=>cyclePhase(ph.pid,ph.phid)));
     el.addEventListener('mouseup',clearHold);
     el.addEventListener('mouseleave',()=>{clearHold();hideTT();});
     el.addEventListener('touchstart',e=>startHoldNode(e,el,()=>cyclePhase(ph.pid,ph.phid)),{passive:false});
     el.addEventListener('touchend',clearHold);
+    el.onmouseenter=e=>showTT(e,`${ph.name} · ${PSL[ph.status]}`,`${doneItems}/${totalItems} itens · segure para avançar`);
 
-    const doneItems=ph.items.filter(x=>x.d).length;
-    el.onmouseenter=e=>showTT(e,ph.name+' · '+PSL[ph.status],`${doneItems}/${ph.items.length} itens · segure para avançar`,null);
     layer.appendChild(el);
   });
 }
@@ -481,7 +545,6 @@ function buildPanel(id){
         <button class="ph-add-btn" onclick="addItem(${p.id},${ph.id},'${addId}')">adicionar</button>
       </div>`;
 
-    // hold on avançar button
     const advBtn=row.querySelector(`#adv-${p.id}-${ph.id}`);
     advBtn.addEventListener('mousedown',e=>startHoldBtn(e,advBtn,()=>cyclePhase(p.id,ph.id)));
     advBtn.addEventListener('mouseup',clearHold);
@@ -489,7 +552,6 @@ function buildPanel(id){
     advBtn.addEventListener('touchstart',e=>startHoldBtn(e,advBtn,()=>cyclePhase(p.id,ph.id)),{passive:false});
     advBtn.addEventListener('touchend',clearHold);
 
-    // enter on add input
     const addInp=row.querySelector(`#${addId}`);
     if(addInp)addInp.addEventListener('keydown',e=>{if(e.key==='Enter')addItem(p.id,ph.id,addId);});
 
