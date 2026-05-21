@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard de Projetos</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f8f2ef;
+  --card:#fff;
+  --border:#e8e0db;
+  --border2:#d4cbc5;
+  --text:#1a1a1a;
+  --text2:#666;
+  --text3:#999;
+  --radius:12px;
+  --radius-sm:8px;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;min-height:100vh;}
+
+.wrap{position:relative;max-width:720px;margin:0 auto;padding:32px 20px;overflow:hidden;}
+
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+.page-title{font-size:16px;font-weight:500;color:var(--text);}
+.page-date{font-size:12px;color:var(--text3);}
+
+.projects{display:flex;flex-direction:column;gap:8px;}
+
+.proj-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px 14px 20px;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative;overflow:hidden;}
+.proj-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.proj-card.c-g::before{background:#1D9E75;}
+.proj-card.c-a::before{background:#EF9F27;}
+.proj-card.c-b::before{background:#378ADD;}
+.proj-card.c-r::before{background:#E24B4A;}
+.proj-card.c-z::before{background:#888;}
+.proj-card:hover{border-color:var(--border2);box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.proj-card.active{border-color:#aaa;}
+
+.proj-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.proj-top-left{display:flex;align-items:center;gap:8px;min-width:0;}
+.proj-emoji{font-size:16px;flex-shrink:0;}
+.proj-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.status-badge{font-size:10px;font-weight:500;padding:3px 9px;border-radius:99px;white-space:nowrap;flex-shrink:0;}
+
+.proj-bar-wrap{display:flex;align-items:center;gap:8px;margin-top:10px;}
+.proj-bar-bg{flex:1;height:4px;background:#ede7e2;border-radius:99px;overflow:hidden;}
+.proj-bar-fill{height:100%;border-radius:99px;transition:width .4s;}
+.proj-pct{font-size:11px;color:var(--text3);min-width:28px;flex-shrink:0;}
+
+.proj-footer{display:flex;gap:12px;flex-wrap:wrap;margin-top:9px;}
+.proj-chip{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text3);}
+
+.divider{height:1px;background:var(--border);margin:24px 0;}
+
+.stats-row{display:flex;gap:0;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);}
+.stat-box{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:14px 0;border-right:1px solid var(--border);}
+.stat-box:last-child{border-right:none;}
+.stat-num{font-size:22px;font-weight:500;color:var(--text);}
+.stat-label{font-size:11px;color:var(--text3);}
+
+.add-btn{font-size:12px;color:var(--text3);background:none;border:1px dashed var(--border2);border-radius:var(--radius);padding:13px;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;transition:border-color .15s,color .15s;}
+.add-btn:hover{border-color:#aaa;color:var(--text2);}
+
+/* DRAWER */
+.drawer{position:fixed;top:0;right:-110%;width:100%;max-width:720px;height:100vh;background:var(--bg);transition:right .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;z-index:100;}
+.drawer.open{right:0;}
+@media(min-width:760px){
+  .drawer{position:absolute;right:-105%;height:100%;max-width:none;border-left:1px solid var(--border);}
+  .drawer.open{right:0;}
+  .dash.shifted{opacity:.2;pointer-events:none;}
+}
+
+.drawer-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--card);flex-shrink:0;}
+.drawer-back{background:none;border:none;cursor:pointer;color:var(--text3);font-size:22px;display:flex;align-items:center;padding:0;line-height:1;}
+.drawer-back:hover{color:var(--text);}
+.drawer-info{flex:1;min-width:0;display:flex;align-items:center;gap:8px;}
+.drawer-emoji{font-size:18px;}
+.drawer-proj-name{font-size:14px;font-weight:500;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.drawer-badge{font-size:10px;font-weight:500;padding:3px 9px;border-radius:99px;white-space:nowrap;flex-shrink:0;}
+
+.drawer-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:24px;}
+
+.section-header{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+.section-icon{font-size:14px;}
+.section-title{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;}
+.section-count{font-size:11px;color:var(--text3);margin-left:auto;}
+
+.task-list{display:flex;flex-direction:column;gap:5px;}
+.task-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);transition:background .15s;}
+.task-item.done{background:#f9f6f3;}
+.task-check{width:16px;height:16px;border-radius:4px;border:1.5px solid #ccc;background:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.task-check.checked{background:#1D9E75;border-color:#1D9E75;color:#fff;font-size:10px;}
+.task-label{flex:1;font-size:13px;color:var(--text);min-width:0;}
+.task-item.done .task-label{color:var(--text3);text-decoration:line-through;}
+.task-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0;opacity:0;transition:opacity .15s;line-height:1;}
+.task-item:hover .task-del{opacity:1;}
+
+.input-row{display:flex;gap:6px;margin-top:8px;}
+.input-row input{flex:1;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);color:var(--text);outline:none;}
+.input-row input:focus{border-color:#aaa;}
+.input-btn{font-size:12px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 12px;cursor:pointer;color:var(--text2);white-space:nowrap;height:36px;transition:border-color .15s;}
+.input-btn:hover{border-color:#aaa;}
+
+.log-list{display:flex;flex-direction:column;}
+.log-item{display:flex;gap:10px;padding-bottom:14px;position:relative;}
+.log-item:not(:last-child)::before{content:'';position:absolute;left:11px;top:20px;bottom:0;width:1px;background:var(--border);}
+.log-dot-wrap{width:24px;flex-shrink:0;display:flex;align-items:flex-start;justify-content:center;padding-top:3px;}
+.log-dot{width:10px;height:10px;border-radius:50%;background:#e8e0db;border:2px solid #c8bfb8;flex-shrink:0;}
+.log-dot.fresh{background:#378ADD;border-color:#378ADD;}
+.log-content{flex:1;min-width:0;}
+.log-text{font-size:13px;color:var(--text);line-height:1.4;}
+.log-time{font-size:11px;color:var(--text3);margin-top:2px;}
+.log-auto-tag{font-size:10px;color:var(--text3);font-style:italic;margin-left:4px;}
+
+.bdg-g{background:#E1F5EE;color:#0F6E56;}
+.bdg-a{background:#FAEEDA;color:#854F0B;}
+.bdg-b{background:#E6F1FB;color:#185FA5;}
+.bdg-r{background:#FCEBEB;color:#A32D2D;}
+.bdg-z{background:#F1EFE8;color:#5F5E5A;}
+.bar-g{background:#1D9E75;}.bar-a{background:#EF9F27;}.bar-b{background:#378ADD;}.bar-r{background:#E24B4A;}.bar-z{background:#888;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="dash" id="dash">
+    <div class="page-header">
+      <span class="page-title">📋 Projetos</span>
+      <span class="page-date" id="today-date"></span>
+    </div>
+    <div class="projects" id="projects-list"></div>
+    <div class="divider"></div>
+    <div class="stats-row">
+      <div class="stat-box"><span class="stat-num" id="s-total">0</span><span class="stat-label">projetos</span></div>
+      <div class="stat-box"><span class="stat-num" id="s-avg">0%</span><span class="stat-label">progresso médio</span></div>
+      <div class="stat-box"><span class="stat-num" id="s-done">0</span><span class="stat-label">tarefas concluídas</span></div>
+    </div>
+  </div>
+
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <button class="drawer-back" onclick="closeDrawer()" aria-label="Voltar">←</button>
+      <div class="drawer-info">
+        <span class="drawer-emoji" id="d-emoji"></span>
+        <span class="drawer-proj-name" id="d-name"></span>
+      </div>
+      <span class="drawer-badge" id="d-badge"></span>
+    </div>
+    <div class="drawer-body" id="d-body"></div>
+  </div>
+</div>
+
+<script>
+const SM={
+  andamento:    {label:'Em andamento',b:'bdg-g',c:'c-g',r:'bar-g'},
+  atencao:      {label:'Atenção',      b:'bdg-a',c:'c-a',r:'bar-a'},
+  planejamento: {label:'Planejamento', b:'bdg-b',c:'c-b',r:'bar-b'},
+  bloqueado:    {label:'Bloqueado',    b:'bdg-r',c:'c-r',r:'bar-r'},
+  pausado:      {label:'Pausado',      b:'bdg-z',c:'c-z',r:'bar-z'},
+};
+const M=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const fmt=d=>d.getDate()+' '+M[d.getMonth()]+' · '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+const todayStr=()=>{const n=new Date();return n.getDate()+' '+M[n.getMonth()]+' '+n.getFullYear();};
+
+let ps=[
+  {
+    id:1, emoji:'🤖', name:'Bot de Compras', status:'atencao', devs:2, start:'mai 2025',
+    tasks:[
+      {id:1,l:'Pipeline de sugestão de pedido',d:true},
+      {id:2,l:'Cache local e snapshot do Tiny (13 tabelas SQLite)',d:true},
+      {id:3,l:'Consultas em linguagem natural via Claude',d:true},
+      {id:4,l:'API Tiny v3 + infraestrutura Railway',d:true},
+      {id:5,l:'Migração SQLite → MySQL (blocker)',d:false},
+      {id:6,l:'Descontar OCs abertas no cálculo (72% a mais em alguns SKUs)',d:false},
+      {id:7,l:'Fix sinal da curva AA (ratio 40d/90d → compra_historico)',d:false},
+      {id:8,l:'Endpoint de necessidade Tiny v3',d:false},
+      {id:9,l:'Relatórios automáticos inteligentes',d:false},
+      {id:10,l:'Alertas WhatsApp Business',d:false},
+    ],
+    log:[
+      {id:1,t:'Projeto iniciado — pipeline de sugestão funcional',ts:new Date('2025-05-17T09:00'),auto:false},
+      {id:2,t:'Fases 1–4 concluídas: cache, consultas NL, Railway, Tiny v3',ts:new Date('2025-05-18T18:00'),auto:false},
+      {id:3,t:'Blocker identificado: SQLite some no redeploy do Railway',ts:new Date('2026-05-18T09:30'),auto:false},
+      {id:4,t:'Medido impacto de OCs abertas: até 72% a mais sugerido em alguns SKUs',ts:new Date('2026-05-20T11:00'),auto:false},
+    ]
+  },
+  {
+    id:2, emoji:'🛒', name:'Orbital Vape — Loja Virtual', status:'andamento', devs:1, start:'mai 2026',
+    tasks:[
+      {id:1,l:'Logo criado e aprovado',d:true},
+      {id:2,l:'Estrutura de categorias mapeada na WBuy',d:true},
+      {id:3,l:'Gerar chave de API Bearer no painel WBuy',d:false},
+      {id:4,l:'Listar e organizar categorias nível 1, 2 e 3',d:false},
+      {id:5,l:'Instalar Node.js e executar script de categorias',d:false},
+      {id:6,l:'Validar criação via GET /category',d:false},
+      {id:7,l:'SEO: meta title, description e banners por categoria',d:false},
+      {id:8,l:'Cadastro de produtos',d:false},
+      {id:9,l:'Configuração de layout, pagamento e frete',d:false},
+      {id:10,l:'Testes e lançamento oficial',d:false},
+    ],
+    log:[
+      {id:1,t:'Identidade visual definida — logo aprovado',ts:new Date('2026-05-01T10:00'),auto:false},
+      {id:2,t:'Esqueleto de categorias montado na plataforma WBuy',ts:new Date('2026-05-10T14:00'),auto:false},
+      {id:3,t:'Integração via REST API iniciada — aguardando token Bearer',ts:new Date('2026-05-20T09:00'),auto:false},
+    ]
+  },
+  {
+    id:3, emoji:'🗺️', name:'Divisão de Sacolas — SP', status:'andamento', devs:1, start:'2025',
+    tasks:[
+      {id:1,l:'Geocodificação híbrida com 7 estratégias de fallback',d:true},
+      {id:2,l:'Normalização de CEP e validação de cidade',d:true},
+      {id:3,l:'Dicionário de 200+ bairros da Grande SP',d:true},
+      {id:4,l:'Distribuição por quadrantes + nearest neighbor',d:true},
+      {id:5,l:'Mapa interativo Leaflet + rotas reais OSRM',d:true},
+      {id:6,l:'Import XLSX/CSV e exportação para Lalamove',d:true},
+      {id:7,l:'Jitter de marcadores sobrepostos',d:true},
+      {id:8,l:'Resolver sobreposição de pontos com fallback CB',d:false},
+      {id:9,l:'Expandir dicionário para bairros novos/incomuns',d:false},
+      {id:10,l:'Cache de geocodificação entre distribuições',d:false},
+      {id:11,l:'Persistência de dados (fechar aba perde pedidos)',d:false},
+      {id:12,l:'Indicador visual de confiança de endereço no mapa',d:false},
+    ],
+    log:[
+      {id:1,t:'Sistema v1.0 em produção — 46+ pedidos por rodada',ts:new Date('2025-01-01T10:00'),auto:false},
+      {id:2,t:'Rotas reais via OSRM implementadas com fallback assíncrono',ts:new Date('2025-03-15T14:00'),auto:false},
+      {id:3,t:'Exportação Lalamove e mensagem WhatsApp formatada',ts:new Date('2025-04-01T10:00'),auto:false},
+      {id:4,t:'Roadmap 2025 atualizado — 6 pendências priorizadas',ts:new Date('2025-05-01T09:00'),auto:false},
+    ]
+  },
+];
+let activeId=null;
+
+const pct=p=>{const t=p.tasks.length;return t?Math.round(p.tasks.filter(x=>x.d).length/t*100):0;};
+const totalDone=()=>ps.reduce((a,p)=>a+p.tasks.filter(t=>t.d).length,0);
+
+function stats(){
+  const t=ps.length,avg=t?Math.round(ps.reduce((a,p)=>a+pct(p),0)/t):0;
+  document.getElementById('s-total').textContent=t;
+  document.getElementById('s-avg').textContent=avg+'%';
+  document.getElementById('s-done').textContent=totalDone();
+}
+
+function renderList(){
+  const list=document.getElementById('projects-list');
+  list.innerHTML='';
+  ps.forEach(p=>{
+    const s=SM[p.status],pc=pct(p),el=document.createElement('div');
+    el.className='proj-card '+s.c+(activeId===p.id?' active':'');
+    el.onclick=()=>openDrawer(p.id);
+    const done=p.tasks.filter(x=>x.d).length;
+    el.innerHTML=`
+      <div class="proj-top">
+        <div class="proj-top-left">
+          <span class="proj-emoji">${p.emoji}</span>
+          <span class="proj-name">${p.name}</span>
+        </div>
+        <span class="status-badge ${s.b}">${s.label}</span>
+      </div>
+      <div class="proj-bar-wrap">
+        <div class="proj-bar-bg"><div class="proj-bar-fill ${s.r}" style="width:${pc}%"></div></div>
+        <span class="proj-pct">${pc}%</span>
+      </div>
+      <div class="proj-footer">
+        <span class="proj-chip">📅 ${p.start}</span>
+        ${p.devs>0?`<span class="proj-chip">👤 ${p.devs} dev${p.devs>1?'s':''}</span>`:''}
+        <span class="proj-chip">✅ ${done}/${p.tasks.length}</span>
+        <span class="proj-chip">🕓 ${p.log.length} entradas</span>
+      </div>`;
+    list.appendChild(el);
+  });
+  const ab=document.createElement('button');
+  ab.className='add-btn';
+  ab.innerHTML='＋ novo projeto';
+  ab.onclick=addP;
+  list.appendChild(ab);
+  stats();
+}
+
+function renderDrawer(id){
+  const p=ps.find(x=>x.id===id),s=SM[p.status];
+  document.getElementById('d-emoji').textContent=p.emoji;
+  document.getElementById('d-name').textContent=p.name;
+  const db=document.getElementById('d-badge');
+  db.className='drawer-badge '+s.b; db.textContent=s.label;
+  const body=document.getElementById('d-body');
+  body.innerHTML='';
+  const done=p.tasks.filter(t=>t.d).length;
+  const tsec=document.createElement('div');
+  tsec.innerHTML=`
+    <div class="section-header">
+      <span class="section-icon">✅</span>
+      <span class="section-title">Tarefas</span>
+      <span class="section-count" id="tc-${id}">${done}/${p.tasks.length} concluídas</span>
+    </div>
+    <div class="task-list" id="tl-${id}"></div>
+    <div class="input-row">
+      <input type="text" id="ti-${id}" placeholder="Nova tarefa...">
+      <button class="input-btn" onclick="addTask(${id})">+ adicionar</button>
+    </div>`;
+  body.appendChild(tsec);
+  const lsec=document.createElement('div');
+  lsec.innerHTML=`
+    <div class="section-header">
+      <span class="section-icon">🕓</span>
+      <span class="section-title">Histórico</span>
+      <span class="section-count" id="lc-${id}">${p.log.length} entradas</span>
+    </div>
+    <div class="log-list" id="ll-${id}"></div>
+    <div class="input-row">
+      <input type="text" id="li-${id}" placeholder="Registrar atualização...">
+      <button class="input-btn" onclick="addLog(${id})">↑ registrar</button>
+    </div>`;
+  body.appendChild(lsec);
+  renderTasks(id); renderLog(id);
+  const ti=document.getElementById('ti-'+id);
+  if(ti)ti.addEventListener('keydown',e=>{if(e.key==='Enter')addTask(id);});
+  const li=document.getElementById('li-'+id);
+  if(li)li.addEventListener('keydown',e=>{if(e.key==='Enter')addLog(id);});
+}
+
+function renderTasks(id){
+  const p=ps.find(x=>x.id===id),list=document.getElementById('tl-'+id);
+  if(!list)return;
+  list.innerHTML='';
+  p.tasks.forEach(t=>{
+    const el=document.createElement('div');
+    el.className='task-item'+(t.d?' done':'');
+    el.innerHTML=`<div class="task-check${t.d?' checked':''}" onclick="toggleTask(${id},${t.id})">${t.d?'✓':''}</div>
+      <span class="task-label">${t.l}</span>
+      <button class="task-del" onclick="delTask(${id},${t.id})" aria-label="Remover">✕</button>`;
+    list.appendChild(el);
+  });
+  const cnt=document.getElementById('tc-'+id);
+  if(cnt)cnt.textContent=p.tasks.filter(t=>t.d).length+'/'+p.tasks.length+' concluídas';
+  renderList();
+}
+
+function renderLog(id){
+  const p=ps.find(x=>x.id===id),list=document.getElementById('ll-'+id);
+  if(!list)return;
+  list.innerHTML='';
+  [...p.log].reverse().forEach((l,i)=>{
+    const el=document.createElement('div');
+    el.className='log-item';
+    el.innerHTML=`<div class="log-dot-wrap"><div class="log-dot${i===0?' fresh':''}"></div></div>
+      <div class="log-content">
+        <div class="log-text">${l.t}</div>
+        <div class="log-time">${fmt(l.ts)}${l.auto?'<span class="log-auto-tag">· automático</span>':''}</div>
+      </div>`;
+    list.appendChild(el);
+  });
+  const cnt=document.getElementById('lc-'+id);
+  if(cnt)cnt.textContent=p.log.length+' entradas';
+}
+
+function toggleTask(pid,tid){
+  const p=ps.find(x=>x.id===pid),t=p.tasks.find(x=>x.id===tid);
+  t.d=!t.d;
+  p.log.push({id:Date.now(),t:(t.d?'✅':'↩️')+' '+t.l,ts:new Date(),auto:true});
+  renderTasks(pid); renderLog(pid); stats();
+}
+function delTask(pid,tid){
+  const p=ps.find(x=>x.id===pid),t=p.tasks.find(x=>x.id===tid);
+  p.tasks=p.tasks.filter(x=>x.id!==tid);
+  p.log.push({id:Date.now(),t:'🗑️ Tarefa removida: "'+t.l+'"',ts:new Date(),auto:true});
+  renderTasks(pid); renderLog(pid);
+}
+function addTask(id){
+  const inp=document.getElementById('ti-'+id),val=inp.value.trim();
+  if(!val)return;
+  const p=ps.find(x=>x.id===id);
+  p.tasks.push({id:Date.now(),l:val,d:false});
+  p.log.push({id:Date.now()+1,t:'➕ Nova tarefa: "'+val+'"',ts:new Date(),auto:true});
+  inp.value='';
+  renderTasks(id); renderLog(id);
+}
+function addLog(id){
+  const inp=document.getElementById('li-'+id),val=inp.value.trim();
+  if(!val)return;
+  ps.find(x=>x.id===id).log.push({id:Date.now(),t:val,ts:new Date(),auto:false});
+  inp.value=''; renderLog(id);
+}
+function openDrawer(id){
+  activeId=id; renderList(); renderDrawer(id);
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('dash').classList.add('shifted');
+}
+function closeDrawer(){
+  activeId=null;
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('dash').classList.remove('shifted');
+  renderList();
+}
+function addP(){
+  const emojis=['🚀','💡','⚙️','🎯','🔧','📦','🌐','🧩'];
+  const id=Date.now();
+  ps.push({id,emoji:emojis[Math.floor(Math.random()*emojis.length)],name:'Novo projeto',status:'planejamento',devs:1,start:'hoje',
+    tasks:[],log:[{id:1,t:'🎉 Projeto criado',ts:new Date(),auto:false}]});
+  renderList(); openDrawer(id);
+}
+document.getElementById('today-date').textContent=todayStr();
+renderList();
+</script>
+</body>
+</html>
