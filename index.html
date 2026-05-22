@@ -163,7 +163,7 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background
 
 <div id="topbar">
   <span class="tb-title">🌌 Orion</span>
-  <span class="tb-ver">v3.2</span>
+  <span class="tb-ver">v3.3</span>
   <div class="tb-div"></div>
   <div class="tb-stats">
     <div class="tb-stat"><span class="tb-num" id="s-total">0</span>projetos</div>
@@ -254,6 +254,44 @@ let ps=[
        {t:'Confirmar existência de API com transportadora parceira',d:false},
        {t:'Obter documentação da API externa',d:false},
        {t:'Envio de rota para empresa parceira pelo mesmo fluxo',d:false},
+     ]},
+   ]},
+  {id:5,emoji:'💬',name:'ChatFlow',desc:'Atendimento híbrido com IA para 6 lojas — Telegram, e-mail e widget centralizado',status:'andamento',devs:1,start:'mai 2026',
+   phases:[
+     {id:1,num:'01',name:'Fundação',status:'done',items:[
+       {t:'Backend Node.js + Express + Socket.io no Railway',d:true},
+       {t:'Banco PostgreSQL persistente',d:true},
+       {t:'Dashboard React + Vite em produção',d:true},
+       {t:'Autenticação JWT com bcrypt',d:true},
+       {t:'GitHub + deploy automático configurado',d:true},
+     ]},
+     {id:2,num:'02',name:'Canais Core',status:'done',items:[
+       {t:'Canal Telegram MTProto: 1/6 lojas conectada',d:true},
+       {t:'Histórico importado + mensagens em tempo real',d:true},
+       {t:'Suporte a foto, áudio, vídeo e documentos',d:true},
+       {t:'Canal E-mail: Cloudflare Worker + Brevo',d:true},
+       {t:'5 domínios ativos (aldeiavape, vapokings, elitesmoke...)',d:true},
+       {t:'Dashboard com filtros por canal, loja e busca',d:true},
+     ]},
+     {id:3,num:'03',name:'Gestão',status:'done',items:[
+       {t:'Página de boas-vindas personalizada por operador',d:true},
+       {t:'Relatórios admin: volume, pico, desempenho por operador',d:true},
+       {t:'Filtros por período: hoje, semana, mês, personalizado',d:true},
+       {t:'3 operadores cadastrados: Admin, Paulo e Rafaela',d:true},
+       {t:'Criação, edição e desativação de operadores via dashboard',d:true},
+     ]},
+     {id:4,num:'04',name:'Expansão',status:'active',items:[
+       {t:'Conectar 5 Telegrams restantes (acesso físico aos celulares)',d:false},
+       {t:'Notificações sonoras + badge na aba do navegador',d:false},
+       {t:'Controle de horário comercial (Seg-Qui 07h-17h, Sex 07h-16h)',d:false},
+       {t:'Reações no Telegram',d:false},
+     ]},
+     {id:5,num:'05',name:'IA & Widget',status:'planned',items:[
+       {t:'Widget flutuante embed para os 6 sites das lojas',d:false},
+       {t:'Captura de URL de origem do visitante',d:false},
+       {t:'IA generativa Claude Haiku: primeiro atendimento automático',d:false},
+       {t:'Transferência para operador humano com resumo da conversa',d:false},
+       {t:'ANTHROPIC_API_KEY configurada no Railway',d:false},
      ]},
    ]},
   {id:4,emoji:'🧠',name:'Kush-Dev',desc:'Bot Telegram que cria e melhora projetos com IA multi-provider',status:'atencao',devs:1,start:'mai 2026',
