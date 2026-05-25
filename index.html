@@ -439,6 +439,32 @@ let ps=[
        {t:'Integração com Google Search Console, resultados de busca e gerenciador de conteúdo',d:false},
      ]},
    ]},
+  {id:6,emoji:'📊',name:'CRM Pro',desc:'CRM de segmentação e reativação de clientes do grupo Elite Vape 420',status:'andamento',devs:1,start:'mai 2026',
+   phases:[
+     {id:1,num:'01',name:'Base no Ar',status:'done',items:[
+       {t:'Tabela de clientes compartilhados entre lojas com filtros e exportação CSV',d:true},
+       {t:'Card de clientes ativos com toggle 30/60/90 dias e variação por período',d:true},
+       {t:'Alerta no Telegram toda segunda às 9h com quedas por loja',d:true},
+       {t:'Modo simulação: root consegue ver o CRM como se fosse um vendedor',d:true},
+     ]},
+     {id:2,num:'02',name:'Reativação dos R$ 495k',status:'active',items:[
+       {t:'Filtrar top 30 clientes com maior gasto recuperável e exportar lista',d:false},
+       {t:'Contato direto via WhatsApp ou ligação — diagnóstico, sem venda',d:false},
+       {t:'Agrupar respostas por motivo e mandar mensagem segmentada',d:false},
+       {t:'Medir quantos voltaram após 14 dias e replicar o que funcionou',d:false},
+     ]},
+     {id:3,num:'03',name:'Modelo de 3 Eixos',status:'planned',items:[
+       {t:'Reunião com diretoria: apresentar os R$ 495k recuperáveis e o modelo proposto',d:false},
+       {t:'Coletar feedback dos vendedores antes de qualquer mudança no sistema',d:false},
+       {t:'Decidir entre caminho A, B ou C para o termômetro de clientes',d:false},
+       {t:'Separar fase histórica, termômetro e status de tratativa no banco',d:false},
+     ]},
+     {id:4,num:'04',name:'Automação & Escala',status:'vision',items:[
+       {t:'Integração com WhatsApp e Telegram API via n8n para follow-up automático',d:false},
+       {t:'Score preditivo de reativação por cliente',d:false},
+       {t:'Programa de fidelidade unificado: 1 ponto por R$ gasto em qualquer loja',d:false},
+     ]},
+   ]},
 ];
 
 let activeId=null;
@@ -693,7 +719,6 @@ function renderNodes({root,projs,phases}){
         <span class="ph-tasks">${done}/${tot}</span>
       </div></div>
       <span class="nd-lbl">${ph.name}</span>`;
-    // Right click = advance, left click = retreat
     el.addEventListener('mousedown',e=>{
       if(spaceDown)return;
       e.preventDefault();
