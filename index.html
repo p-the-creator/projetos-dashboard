@@ -1363,8 +1363,8 @@ function stars(){
 }
 
 // ── Persistence ───────────────────────────────────────
-let saveTimer=null;
-function autoSave(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>doSave(),1200);}
+let saveTimer=null, isLoading=true;
+function autoSave(){if(isLoading)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>doSave(),1200);}
 async function doSave(){try{await fetch('/api/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({projects:ps})});}catch(e){console.error('Erro ao salvar',e);}}
 async function manualSave(){
   const btn=document.getElementById('save-btn');
@@ -1374,10 +1374,13 @@ async function manualSave(){
   setTimeout(()=>{btn.className='tb-btn save';btn.textContent='💾 salvar';},2500);
 }
 async function loadState(){
-  try{const r=await fetch('/api/load');if(!r.ok)return;const data=await r.json();
+  isLoading=true;
+  try{const r=await fetch('/api/load');if(!r.ok){isLoading=false;return;}const data=await r.json();
     if(data&&data.projects&&data.projects.length){ps=data.projects;render();}}
   catch(e){console.log('Usando estado padrão');}
+  finally{isLoading=false;}
 }
+window.addEventListener('beforeunload',()=>{if(!isLoading)doSave();});
 
 // ── Init ──────────────────────────────────────────────
 const nd2=new Date();
