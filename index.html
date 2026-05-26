@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Orion v4.0</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2306080e'/><polygon points='16,3 27,9.5 27,22.5 16,29 5,22.5 5,9.5' fill='none' stroke='%231D9E75' stroke-width='1.5'/><polygon points='16,8 23,12 23,20 16,24 9,20 9,12' fill='%231D9E75' fill-opacity='0.15'/><circle cx='16' cy='16' r='2.5' fill='%231D9E75'/><circle cx='16' cy='16' r='1' fill='%232dd4a0'/></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background:#06080e;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;user-select:none;}
 #bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
@@ -205,6 +206,43 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background
   #panel-handle{display:none;}
   #mob-toast{display:none!important;}
 }
+
+/* IMPORT MODAL */
+#import-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;}
+#import-overlay.open{display:flex;}
+#import-box{background:#0d1117;border:1px solid rgba(255,255,255,.09);border-radius:16px;width:560px;max-width:92vw;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;}
+#import-header{padding:18px 22px 14px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:10px;}
+#import-header h2{margin:0;font-size:14px;font-weight:700;color:rgba(255,255,255,.9);flex:1;}
+#import-close{background:none;border:none;color:rgba(255,255,255,.3);font-size:20px;cursor:pointer;line-height:1;padding:0;}
+#import-close:hover{color:rgba(255,255,255,.8);}
+#import-body{padding:22px;flex:1;overflow-y:auto;}
+#drop-zone{border:2px dashed rgba(139,92,246,.35);border-radius:12px;padding:44px 24px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(139,92,246,.03);}
+#drop-zone.drag-over{border-color:rgba(139,92,246,.8);background:rgba(139,92,246,.08);}
+#drop-zone:hover{border-color:rgba(139,92,246,.55);background:rgba(139,92,246,.05);}
+#drop-zone .dz-icon{font-size:36px;margin-bottom:10px;display:block;}
+#drop-zone .dz-title{font-size:14px;font-weight:600;color:rgba(255,255,255,.75);margin-bottom:5px;}
+#drop-zone .dz-sub{font-size:11px;color:rgba(255,255,255,.3);}
+#drop-zone input[type=file]{display:none;}
+#import-status{margin-top:18px;display:none;}
+#import-status .is-label{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
+#import-log{font-size:11px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:12px 14px;line-height:1.7;max-height:120px;overflow-y:auto;}
+#import-preview{margin-top:18px;display:none;}
+#import-preview .ip-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+#import-preview .ip-project{border:1px solid rgba(139,92,246,.25);border-radius:10px;background:rgba(139,92,246,.04);padding:14px 16px;margin-bottom:10px;}
+#import-preview .ip-pname{font-size:13px;font-weight:700;color:rgba(255,255,255,.9);margin-bottom:4px;}
+#import-preview .ip-pdesc{font-size:11px;color:rgba(255,255,255,.35);margin-bottom:10px;}
+#import-preview .ip-phases{display:flex;flex-direction:column;gap:5px;}
+#import-preview .ip-phase{display:flex;align-items:center;gap:8px;font-size:11px;padding:3px 0;}
+#import-preview .ip-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;}
+#import-preview .ip-items{font-size:10px;color:rgba(255,255,255,.3);margin-left:auto;}
+#import-footer{padding:14px 22px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:8px;justify-content:flex-end;}
+.import-action{font-size:11px;padding:7px 18px;border-radius:8px;border:1px solid;cursor:pointer;font-weight:600;letter-spacing:.04em;transition:all .15s;}
+.import-cancel{background:none;border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.4);}
+.import-cancel:hover{border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.7);}
+.import-confirm{background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.4);color:rgba(139,92,246,.9);display:none;}
+.import-confirm:hover{background:rgba(139,92,246,.25);border-color:rgba(139,92,246,.7);}
+.import-confirm.visible{display:inline-block;}
+
 </style>
 </head>
 <body>
@@ -226,6 +264,7 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;background
     <button class="tb-btn reset" onclick="resetView()" title="Resetar visualização (R)">⌖</button>
     <button class="tb-btn save" id="save-btn" onclick="manualSave()">💾 salvar</button>
     <button class="tb-btn" onclick="addP()">＋ projeto</button>
+    <button class="tb-btn" onclick="openImport()" style="border-color:rgba(139,92,246,.3);color:rgba(139,92,246,.65);">📄 importar PDF</button>
     <span class="tb-date" id="today-date"></span>
   </div>
 </div>
@@ -871,14 +910,456 @@ function showTT(e,title,meta,color,statusLabel){
 }
 function hideTT(){ttEl.style.display='none';}
 
-// ── Stars ─────────────────────────────────────────────
-function stars(){
-  const c=document.getElementById('bg'),ctx=c.getContext('2d');
-  c.width=window.innerWidth;c.height=window.innerHeight;ctx.clearRect(0,0,c.width,c.height);
-  for(let i=0;i<200;i++){
-    ctx.beginPath();ctx.arc(Math.random()*c.width,Math.random()*c.height,Math.random()*1.1+.1,0,Math.PI*2);
-    ctx.fillStyle=`rgba(255,255,255,${Math.random()*.25+.03})`;ctx.fill();
+
+// ── PDF Import + IA ───────────────────────────────────
+let _importedProjects=[];
+
+function openImport(){
+  document.getElementById('import-overlay').classList.add('open');
+  resetImport();
+}
+function closeImport(){
+  document.getElementById('import-overlay').classList.remove('open');
+}
+function resetImport(){
+  _importedProjects=[];
+  document.getElementById('import-status').style.display='none';
+  document.getElementById('import-preview').style.display='none';
+  document.getElementById('confirm-import').classList.remove('visible');
+  document.getElementById('import-log').textContent='';
+  document.getElementById('preview-list').innerHTML='';
+  document.getElementById('import-context-wrap').style.display='block';
+  document.getElementById('import-context').value='';
+  const dz=document.getElementById('drop-zone');
+  dz.style.display='block';
+  dz.querySelector('.dz-icon').textContent='☁️';
+}
+
+function dzOver(e){e.preventDefault();document.getElementById('drop-zone').classList.add('drag-over');}
+function dzLeave(){document.getElementById('drop-zone').classList.remove('drag-over');}
+function dzDrop(e){
+  e.preventDefault();dzLeave();
+  const f=e.dataTransfer.files[0];
+  if(f&&f.type==='application/pdf')handlePDF(f);
+  else log('⚠ Apenas arquivos .pdf são aceitos.');
+}
+
+function log(msg){
+  const el=document.getElementById('import-log');
+  el.textContent+=msg+'\n';el.scrollTop=el.scrollHeight;
+}
+
+async function handlePDF(file){
+  if(!file)return;
+  const userCtx=document.getElementById('import-context').value.trim();
+  document.getElementById('drop-zone').style.display='none';
+  document.getElementById('import-context-wrap').style.display='none';
+  const statusEl=document.getElementById('import-status');
+  statusEl.style.display='block';
+  log('📄 Arquivo: '+file.name+' ('+Math.round(file.size/1024)+'kb)');
+  log('🔄 Convertendo PDF...');
+
+  let b64;
+  try{
+    b64=await new Promise((res,rej)=>{
+      const r=new FileReader();
+      r.onload=()=>res(r.result.split(',')[1]);
+      r.onerror=()=>rej(new Error('Falha na leitura'));
+      r.readAsDataURL(file);
+    });
+  }catch(err){log('✕ Erro ao ler arquivo: '+err.message);return;}
+
+  log('✓ PDF carregado. Enviando para IA...');
+  log('🧠 Analisando roadmap...');
+
+  const PROMPT=`Você é um parser de roadmaps. Analise o PDF e extraia os projetos contidos nele.
+
+Retorne APENAS um JSON válido, sem markdown, sem explicações, sem backticks. Apenas o JSON puro.
+
+Formato exato:
+{
+  "projects": [
+    {
+      "emoji": "📊",
+      "name": "Nome do projeto",
+      "desc": "Descrição curta e direta do que o projeto faz",
+      "status": "andamento",
+      "devs": 1,
+      "start": "mai 2026",
+      "phases": [
+        {
+          "num": "01",
+          "name": "Nome da Fase",
+          "status": "done",
+          "items": [
+            {"t": "Descrição da tarefa em linguagem simples", "d": true}
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Regras:
+- status do projeto: "andamento" | "atencao" | "plan" | "bloq" | "paus"
+- status da fase: "done" (concluída) | "active" (em progresso agora) | "planned" (próxima) | "vision" (futuro distante)
+- Itens concluídos: "d": true. Pendentes: "d": false
+- Escreva tudo em português brasileiro, linguagem simples — sem jargão técnico
+- Se o PDF tiver múltiplos projetos, inclua todos
+- Máximo 6 fases por projeto, máximo 8 itens por fase
+- Emoji deve representar bem o projeto
+- desc máximo 80 caracteres${userCtx?'\n\nINSTRUÇÃO DO USUÁRIO (prioridade máxima, siga à risca):\n'+userCtx:''}`;
+
+
+  try{
+    const res=await fetch('/api/parse-pdf',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({b64,prompt:PROMPT})
+    });
+
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      log('✕ Erro da API: '+(err.error||res.status));
+      return;
+    }
+
+    const data=await res.json();
+    const raw=data.raw||'';
+    log('✓ IA respondeu. Interpretando resultado...');
+
+    let parsed;
+    try{
+      const clean=raw.replace(/```json|```/g,'').trim();
+      parsed=JSON.parse(clean);
+    }catch(e){
+      log('✕ Erro ao interpretar JSON: '+e.message);
+      log('Resposta bruta: '+raw.slice(0,200)+'...');
+      return;
+    }
+
+    const projects=parsed.projects||[];
+    if(!projects.length){log('⚠ Nenhum projeto identificado no PDF.');return;}
+
+    log('✓ '+projects.length+' projeto(s) identificado(s)!');
+    _importedProjects=projects;
+    showPreview(projects);
+
+  }catch(err){
+    log('✕ Falha na requisição: '+err.message);
   }
+}
+
+function showPreview(projects){
+  const statusInfo={
+    done:{label:'Concluída',col:'#22C55E',bg:'rgba(34,197,94,.15)'},
+    active:{label:'Em progresso',col:'#F97316',bg:'rgba(249,115,22,.15)'},
+    planned:{label:'Planejada',col:'#3B82F6',bg:'rgba(59,130,246,.12)'},
+    vision:{label:'Visão',col:'#8B5CF6',bg:'rgba(139,92,246,.12)'},
+  };
+  const list=document.getElementById('preview-list');
+  list.innerHTML='';
+  projects.forEach(p=>{
+    const div=document.createElement('div');
+    div.className='ip-project';
+    const phasesHtml=p.phases.map(ph=>{
+      const s=statusInfo[ph.status]||statusInfo.planned;
+      const done=ph.items.filter(x=>x.d).length;
+      return `<div class="ip-phase">
+        <span style="color:${s.col};font-size:10px">${ph.status==='done'?'✓':ph.status==='active'?'◉':ph.status==='planned'?'◌':'◈'}</span>
+        <span style="color:rgba(255,255,255,.65);font-size:11px">${ph.num} · ${ph.name}</span>
+        <span class="ip-badge" style="background:${s.bg};color:${s.col}">${s.label}</span>
+        <span class="ip-items">${done}/${ph.items.length} tarefas</span>
+      </div>`;
+    }).join('');
+    div.innerHTML=`
+      <div class="ip-pname">${p.emoji} ${p.name}</div>
+      <div class="ip-pdesc">${p.desc}</div>
+      <div class="ip-phases">${phasesHtml}</div>`;
+    list.appendChild(div);
+  });
+  document.getElementById('import-preview').style.display='block';
+  document.getElementById('confirm-import').classList.add('visible');
+}
+
+function confirmImport(){
+  if(!_importedProjects.length)return;
+  _importedProjects.forEach(p=>{
+    const id=Date.now()+Math.round(Math.random()*9999);
+    ps.push({
+      id,
+      emoji:p.emoji||'📋',
+      name:p.name,
+      desc:p.desc,
+      status:p.status||'plan',
+      devs:p.devs||1,
+      start:p.start||'agora',
+      phases:p.phases.map((ph,i)=>({
+        id:i+1,
+        num:ph.num||String(i+1).padStart(2,'0'),
+        name:ph.name,
+        status:ph.status,
+        items:(ph.items||[]).map(it=>({t:it.t,d:!!it.d}))
+      }))
+    });
+  });
+  render();autoSave();closeImport();
+}
+
+// fechar com ESC ou clique fora
+document.addEventListener('click',e=>{
+  if(e.target&&e.target.id==='import-overlay')closeImport();
+});
+document.addEventListener('keydown',e=>{
+  const ov=document.getElementById('import-overlay');
+  if(e.key==='Escape'&&ov&&ov.classList.contains('open'))closeImport();
+});
+
+// ── Stars + Formação Estelar + Supernova ──────────────
+let _rafId=null,_frame=0,_parts=[],_novas=[];
+let _mx=-9999,_my=-9999,_movedAt=0;
+// partículas de fundo estáticas (estrelas distantes)
+let _bgStars=[];
+
+const PC=180,   // partículas de gás/poeira interativas
+      GR=230,   // raio de gravidade do mouse
+      GS=0.06,  // força gravitacional
+      TANG=0.28,// componente tangencial (espiral)
+      MS=3.2,   // velocidade máxima
+      IGNITE=240,// frames parado p/ ignição
+      DAMP=0.985;// amortecimento de velocidade
+
+// Rastrear mouse (sem conflito com o pan — apenas leitura de posição)
+document.addEventListener('mousemove',e=>{_mx=e.clientX;_my=e.clientY;_movedAt=_frame;});
+document.addEventListener('mouseleave',()=>{_mx=-9999;_my=-9999;});
+
+function initStars(){
+  const c=document.getElementById('bg');
+  c.width=window.innerWidth;c.height=window.innerHeight;
+
+  // estrelas de fundo fixas
+  _bgStars=Array.from({length:160},()=>({
+    x:Math.random()*c.width,y:Math.random()*c.height,
+    r:Math.random()*.9+.1,
+    op:Math.random()*.18+.03,
+    tw:Math.random()*Math.PI*2,
+    spd:Math.random()*.012+.003
+  }));
+
+  // partículas de gás interativas
+  _parts=Array.from({length:PC},()=>({
+    x:Math.random()*c.width,
+    y:Math.random()*c.height,
+    vx:(Math.random()-.5)*.22,
+    vy:(Math.random()-.5)*.22,
+    r:Math.random()*1.3+.25,
+    baseOp:Math.random()*.18+.04,
+    hue:195+Math.random()*65,  // azul-frio
+    tw:Math.random()*Math.PI*2,
+    twSpd:Math.random()*.012+.003,
+  }));
+}
+
+// ── Supernova (evento periódico) ──────────────────────
+class Nova{
+  constructor(x,y,scale=1){
+    this.x=x;this.y=y;this.f=0;this.dur=Math.round(300*scale);this.sc=scale;
+    this.pts=Array.from({length:Math.round(80*scale)},()=>({
+      a:Math.random()*Math.PI*2,
+      spd:Math.random()*2.8+.6,
+      r:Math.random()*1.4+.3,
+      hue:25+Math.random()*55,
+      lt:Math.random()*.4+.7
+    }));
+    this.rings=[
+      {maxR:260*scale,w:2.2,r:255,g:190,b:80},
+      {maxR:400*scale,w:1.2,r:120,g:160,b:255},
+      {maxR:550*scale,w:.7, r:180,g:80, b:255},
+    ];
+  }
+  draw(ctx){
+    const t=this.f/this.dur;if(t>=1)return false;
+    const ease=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    const ft=Math.max(0,1-t*5);
+    if(ft>0){
+      const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,100*ft*this.sc);
+      g.addColorStop(0,`rgba(255,240,200,${ft*.95})`);
+      g.addColorStop(.25,`rgba(255,160,60,${ft*.55})`);
+      g.addColorStop(.6,`rgba(255,80,20,${ft*.2})`);
+      g.addColorStop(1,'rgba(255,40,0,0)');
+      ctx.beginPath();ctx.arc(this.x,this.y,100*ft*this.sc,0,Math.PI*2);
+      ctx.fillStyle=g;ctx.fill();
+    }
+    this.rings.forEach(rk=>{
+      const rr=Math.min(ease*1.4,1)*rk.maxR;
+      const ro=Math.max(0,(1-t*1.3)*.65);
+      if(ro<.005)return;
+      ctx.beginPath();ctx.arc(this.x,this.y,rr,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(${rk.r},${rk.g},${rk.b},${ro})`;
+      ctx.lineWidth=rk.w*(1-t*.7);ctx.stroke();
+    });
+    this.pts.forEach(p=>{
+      const dist=ease*p.spd*200*this.sc;
+      const px=this.x+Math.cos(p.a)*dist,py=this.y+Math.sin(p.a)*dist;
+      const po=Math.max(0,(1-t*p.lt)*.9);
+      if(po<.01)return;
+      ctx.beginPath();ctx.arc(px,py,p.r*(1-t*.5),0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},100%,72%,${po})`;ctx.fill();
+    });
+    if(t>.15){
+      const nt=(t-.15)/.85,no=Math.max(0,(1-nt)*.18),nr=(80+nt*120)*this.sc;
+      const g2=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,nr);
+      g2.addColorStop(0,`rgba(100,180,255,${no})`);
+      g2.addColorStop(.5,`rgba(180,80,255,${no*.4})`);
+      g2.addColorStop(1,'rgba(100,180,255,0)');
+      ctx.beginPath();ctx.arc(this.x,this.y,nr,0,Math.PI*2);ctx.fillStyle=g2;ctx.fill();
+    }
+    this.f++;return true;
+  }
+}
+
+function triggerNova(x,y,scale=1){
+  const c=document.getElementById('bg'),m=80;
+  _novas.push(new Nova(
+    x??m+Math.random()*(c.width-m*2),
+    y??m+Math.random()*(c.height-m*2),
+    scale
+  ));
+}
+
+// ── Loop principal ────────────────────────────────────
+function _animLoop(){
+  const c=document.getElementById('bg'),ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+
+  // 1. Estrelas de fundo (twinkle suave)
+  _bgStars.forEach(s=>{
+    s.tw+=s.spd;
+    ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${s.op*(.78+.22*Math.sin(s.tw))})`;ctx.fill();
+  });
+
+  // 2. Física das partículas de gás
+  const mouseActive=_mx>0&&_my>0;
+  let nearCore=0; // quantas estão bem perto do mouse
+
+  _parts.forEach(p=>{
+    // amortecimento natural
+    p.vx*=DAMP;p.vy*=DAMP;
+    // deriva orgânica lenta
+    p.tw+=p.twSpd;
+    p.vx+=(Math.random()-.5)*.008;
+    p.vy+=(Math.random()-.5)*.008;
+
+    let heat=0,distToMouse=9999;
+    if(mouseActive){
+      const dx=_mx-p.x,dy=_my-p.y;
+      const d2=dx*dx+dy*dy;
+      distToMouse=Math.sqrt(d2);
+      if(distToMouse<GR&&distToMouse>.5){
+        heat=Math.pow(1-distToMouse/GR,1.4);
+        const f=GS*heat*(GR/Math.max(distToMouse,18));
+        const nx=dx/distToMouse,ny=dy/distToMouse;
+        // componente radial (atração)
+        p.vx+=nx*f;p.vy+=ny*f;
+        // componente tangencial (espiral horária)
+        p.vx+=(-ny)*f*TANG;p.vy+=(nx)*f*TANG;
+        if(distToMouse<28)nearCore++;
+      }
+    }
+
+    // clamp velocidade
+    const spd=Math.sqrt(p.vx*p.vx+p.vy*p.vy);
+    if(spd>MS){p.vx=p.vx/spd*MS;p.vy=p.vy/spd*MS;}
+
+    // mover
+    p.x+=p.vx;p.y+=p.vy;
+
+    // wrap nas bordas
+    if(p.x<-10)p.x=c.width+10;if(p.x>c.width+10)p.x=-10;
+    if(p.y<-10)p.y=c.height+10;if(p.y>c.height+10)p.y=-10;
+
+    // cor: frio (azul) → quente (laranja/branco) baseado em heat
+    const drawHue =p.hue*(1-heat)+32*heat;
+    const drawSat =20+heat*80;
+    const drawLit =68+heat*28;
+    const twinkle =.8+.2*Math.sin(p.tw);
+    const drawOp  =Math.min(1,(p.baseOp+heat*.55)*twinkle);
+    const drawR   =p.r+heat*1.8;
+
+    ctx.beginPath();ctx.arc(p.x,p.y,drawR,0,Math.PI*2);
+    ctx.fillStyle=`hsla(${drawHue},${drawSat}%,${drawLit}%,${drawOp})`;ctx.fill();
+
+    // trilha de calor para partículas muito próximas
+    if(heat>.55){
+      ctx.beginPath();ctx.arc(p.x,p.y,drawR*2.5,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${drawHue},90%,80%,${heat*.07})`;ctx.fill();
+    }
+  });
+
+  // 3. Glóbulo protoestelar no cursor
+  if(mouseActive){
+    const stillFrames=_frame-_movedAt;
+    const charge=Math.min(nearCore/12,1); // 0→1 conforme partículas chegam
+    const pulse=.85+.15*Math.sin(_frame*.08);
+
+    if(charge>.05){
+      // disco de acreção (anel fino)
+      const diskR=18+charge*22;
+      ctx.beginPath();ctx.arc(_mx,_my,diskR*pulse,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(255,${Math.round(160-charge*80)},40,${charge*.35})`;
+      ctx.lineWidth=1.2+charge*1.4;ctx.stroke();
+
+      // núcleo brilhante
+      const coreR=4+charge*14;
+      const cg=ctx.createRadialGradient(_mx,_my,0,_mx,_my,coreR*pulse);
+      cg.addColorStop(0,`rgba(255,250,230,${charge*.92})`);
+      cg.addColorStop(.35,`rgba(255,180,60,${charge*.55})`);
+      cg.addColorStop(.7,`rgba(255,80,20,${charge*.2})`);
+      cg.addColorStop(1,'rgba(255,40,0,0)');
+      ctx.beginPath();ctx.arc(_mx,_my,coreR*pulse,0,Math.PI*2);
+      ctx.fillStyle=cg;ctx.fill();
+
+      // halo externo suave
+      const haloR=40+charge*60;
+      const hg=ctx.createRadialGradient(_mx,_my,coreR,_mx,_my,haloR);
+      hg.addColorStop(0,`rgba(255,140,40,${charge*.1})`);
+      hg.addColorStop(1,'rgba(255,80,0,0)');
+      ctx.beginPath();ctx.arc(_mx,_my,haloR,0,Math.PI*2);ctx.fillStyle=hg;ctx.fill();
+    }
+
+    // IGNIÇÃO: mouse parado + bastante gás acumulado → nasce uma estrela
+    if(stillFrames>IGNITE&&nearCore>=8&&charge>.65){
+      // dispersão das partículas ao redor
+      _parts.forEach(p=>{
+        const dx=p.x-_mx,dy=p.y-_my;
+        const d=Math.sqrt(dx*dx+dy*dy)||1;
+        const kick=Math.max(0,1-d/120)*4.5;
+        p.vx+=(dx/d)*kick;p.vy+=(dy/d)*kick;
+      });
+      triggerNova(_mx,_my,.45); // nova menor — nascimento de estrela
+      _movedAt=_frame+IGNITE;   // cooldown
+    }
+  }
+
+  // 4. Supernovas em andamento
+  for(let i=_novas.length-1;i>=0;i--){
+    if(!_novas[i].draw(ctx))_novas.splice(i,1);
+  }
+
+  _frame++;
+  // supernova periódica distante a cada ~35s
+  if(_frame===150||_frame%2100===0)triggerNova();
+
+  _rafId=requestAnimationFrame(_animLoop);
+}
+
+function stars(){
+  const c=document.getElementById('bg');
+  c.width=window.innerWidth;c.height=window.innerHeight;
+  initStars();
+  if(_rafId)cancelAnimationFrame(_rafId);
+  _animLoop();
 }
 
 // ── Persistence ───────────────────────────────────────
@@ -902,7 +1383,52 @@ async function loadState(){
 const nd2=new Date();
 document.getElementById('today-date').textContent=nd2.getDate()+' '+MN[nd2.getMonth()]+' '+nd2.getFullYear();
 stars();resetView();render();loadState();
-window.addEventListener('resize',()=>{stars();});
+window.addEventListener('resize',()=>{const c=document.getElementById('bg');c.width=window.innerWidth;c.height=window.innerHeight;initStars();});
 </script>
+
+<!-- IMPORT MODAL -->
+<div id="import-overlay">
+  <div id="import-box">
+    <div id="import-header">
+      <span style="font-size:18px">📄</span>
+      <h2>Importar Roadmap via PDF</h2>
+      <button id="import-close" onclick="closeImport()">×</button>
+    </div>
+    <div id="import-body">
+      <div id="drop-zone" onclick="document.getElementById('pdf-input').click()"
+        ondragover="dzOver(event)" ondragleave="dzLeave()" ondrop="dzDrop(event)">
+        <input type="file" id="pdf-input" accept=".pdf" onchange="handlePDF(this.files[0])">
+        <span class="dz-icon">☁️</span>
+        <div class="dz-title">Solte o PDF aqui ou clique para selecionar</div>
+        <div class="dz-sub">A IA vai identificar projetos, fases, tarefas e status automaticamente</div>
+      </div>
+      <div id="import-context-wrap" style="margin-top:14px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.28);text-transform:uppercase;margin-bottom:7px;">Contexto para a IA <span style="font-weight:400;opacity:.6">(opcional)</span></div>
+        <textarea id="import-context"
+          placeholder="Ex: &quot;Esse PDF é uma atualização do projeto CRM Pro, não crie projeto novo — só atualize as fases e tarefas existentes.&quot;&#10;Ou: &quot;Novo projeto, ainda não existe no Orion.&quot;"
+          style="width:100%;box-sizing:border-box;font-size:11px;font-family:inherit;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 12px;color:rgba(255,255,255,.7);outline:none;resize:vertical;min-height:72px;line-height:1.6;"
+          onfocus="this.style.borderColor='rgba(139,92,246,.45)'"
+          onblur="this.style.borderColor='rgba(255,255,255,.08)'"
+        ></textarea>
+        <div style="font-size:10px;color:rgba(255,255,255,.2);margin-top:5px;line-height:1.5;">
+          Diga se é atualização de projeto existente, novo projeto, qual fase está ativa agora, ou qualquer detalhe que ajude a IA a não se confundir.
+        </div>
+      </div>
+      <div id="import-status">
+        <div class="is-label">Processando</div>
+        <div id="import-log"></div>
+      </div>
+      <div id="import-preview">
+        <div class="ip-title">✦ Projetos identificados</div>
+        <div id="preview-list"></div>
+      </div>
+    </div>
+    <div id="import-footer">
+      <button class="import-action import-cancel" onclick="closeImport()">cancelar</button>
+      <button class="import-action import-confirm" id="confirm-import" onclick="confirmImport()">adicionar ao Orion</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
